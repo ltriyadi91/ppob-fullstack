@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="PPOB-USER-01-SEQ" author="ltriyadi91">
+        <createSequence sequenceName="user_sequence" startValue="1" incrementBy="1"/>
+    </changeSet>
+
+    <changeSet id="PPOB-USER-01-CREATE-TABLE" author="ltriyadi91">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="users" />
+            </not>
+        </preConditions>
+        <createTable tableName="users">
+            <column name="id" type="bigint">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_users"/>
+            </column>
+            <column name="public_id" type="${uuidType}">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="first_name" type="varchar(200)"/>
+            <column name="last_name" type="varchar(200)"/>
+            <column name="password" type="text"/>
+            <column name="role" type="varchar(50)"/>
+            <column name="email" type="varchar(255)">
+                <constraints unique="true" nullable="true" uniqueConstraintName="ux_user_email"/>
+            </column>
+            <column name="image_url" type="varchar(256)"/>
+            <column name="created_at" type="timestamp" />
+            <column name="created_by" type="text"/>
+            <column name="updated_at" type="timestamp"/>
+            <column name="updated_by" type="text"/>
+            <column name="deleted_at" type="timestamp"/>
+            <column name="deleted_by" type="text"/>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>
