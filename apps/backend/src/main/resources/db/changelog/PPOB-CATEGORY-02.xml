@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="PPOB-CATEGORY-02-CREATE-TABLE" author="ltriyadi91">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="categories" />
+            </not>
+        </preConditions>
+        <createTable tableName="categories">
+            <column name="id" type="bigint">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_categories"/>
+            </column>
+            <column name="category_name" type="varchar(200)"/>
+            <column name="image_url" type="text"/>
+            <column name="created_at" type="timestamp" />
+            <column name="created_by" type="text"/>
+            <column name="updated_at" type="timestamp"/>
+            <column name="updated_by" type="text"/>
+            <column name="deleted_at" type="timestamp"/>
+            <column name="deleted_by" type="text"/>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>
