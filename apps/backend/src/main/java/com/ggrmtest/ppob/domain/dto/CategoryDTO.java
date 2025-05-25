@@ -8,18 +8,18 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class CategoryDTO {
 
+  private Long categoryId;
   private String categoryName;
   private String imageUrl;
 
   public static CategoryDTO fromCategory(Category category) {
     return new CategoryDTO()
+      .setCategoryId(category.getId())
       .setCategoryName(category.getCategoryName())
       .setImageUrl(category.getImageUrl());
   }
 
   public Category toCategory(Category category) {
-    return new Category()
-      .setCategoryName(category.getCategoryName())
-      .setImageUrl(category.getImageUrl());
+    return category.setCategoryName(categoryName).setImageUrl(imageUrl);
   }
 }

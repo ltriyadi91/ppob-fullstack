@@ -19,7 +19,7 @@ public class Category {
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   @EqualsAndHashCode.Include
-  private Integer id;
+  private Long id;
 
   @NotNull(message = "Category Name cannot be NULL")
   private String categoryName;

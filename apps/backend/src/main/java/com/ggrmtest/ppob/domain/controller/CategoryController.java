@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -27,10 +28,10 @@ public class CategoryController {
     return ResponseEntity.status(HttpStatus.OK).body(categories);
   }
 
-	@PreAuthorize("hasAuthority('ADMIN')")
+  @PreAuthorize("hasAuthority('ADMIN')")
   @PostMapping
-  public ResponseEntity<CategoryDTO> saveCategory(CategoryDTO categoryDTO) {
-    CategoryDTO category = categoryService.saveCategory(categoryDTO);
+  public ResponseEntity<CategoryDTO> saveCategory(@RequestBody CategoryDTO categoryDTO) {
+    CategoryDTO category = categoryService.addCategory(categoryDTO);
     return ResponseEntity.status(HttpStatus.OK).body(category);
   }
 }
