@@ -12,5 +12,6 @@
 
   <include file="/db/changelog/PPOB-USER-01.xml"/>
   <include file="/db/changelog/PPOB-CATEGORY-02.xml"/>
+  <include file="/db/changelog/PPOB-SUBCATEGORY-03.xml"/>
 
 </databaseChangeLog>

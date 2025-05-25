@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="PPOB-SUBCATEGORY-03-CREATE-TABLE" author="ltriyadi91">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="subcategories" />
+            </not>
+        </preConditions>
+        <createTable tableName="subcategories">
+            <column name="id" type="bigint">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_subcategories"/>
+            </column>
+            <column name="sub_category_name" type="varchar(200)"/>
+            <column name="image_url" type="text"/>
+            <column name="created_at" type="timestamp" />
+            <column name="created_by" type="text"/>
+            <column name="updated_at" type="timestamp"/>
+            <column name="updated_by" type="text"/>
+            <column name="deleted_at" type="timestamp"/>
+            <column name="deleted_by" type="text"/>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>
