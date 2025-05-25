@@ -12,6 +12,18 @@
           "-Dspring-boot.run.profiles=local"
         ]
       }
+    },
+    "clean": {
+      "executor": "@nxrocks/nx-spring-boot:clean",
+      "options": {
+        "root": "apps/backend"
+      }
+    },
+    "build": {
+      "executor": "@nxrocks/nx-spring-boot:build",
+      "options": {
+        "root": "apps/backend"
+      }
     }
   }
 }
