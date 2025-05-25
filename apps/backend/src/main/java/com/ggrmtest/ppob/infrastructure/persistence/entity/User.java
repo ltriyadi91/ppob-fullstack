@@ -1,15 +1,6 @@
 package com.ggrmtest.ppob.infrastructure.persistence.entity;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-
 import com.ggrmtest.ppob.common.enumeration.Role;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -19,9 +10,15 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 @Entity
 @Data
@@ -29,38 +26,39 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class User implements UserDetails {
+
   @Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+  @GeneratedValue(strategy = GenerationType.AUTO)
   @EqualsAndHashCode.Include
-	private Integer id;
-	
-	@NotNull(message = "First Name cannot be NULL")
+  private Integer id;
+
+  @NotNull(message = "First Name cannot be NULL")
   //@Pattern(regexp = "[A-Za-z.\\s]+", message = "Enter valid characters in first name")
-	private String firstName;
-	
-	@NotNull(message = "Last Name cannot be NULL")
+  private String firstName;
+
+  @NotNull(message = "Last Name cannot be NULL")
   //@Pattern(regexp = "[A-Za-z.\\s]+", message = "Enter valid characters in last name")
-	private String lastName;
-	
-	@NotNull(message = "role cannot be NULL")
+  private String lastName;
+
+  @NotNull(message = "role cannot be NULL")
   @Enumerated(EnumType.STRING)
   @Column(name = "role")
   private Role role;
-	
-	@NotNull(message = "Please enter username")
-	@Column(unique = true)
+
+  @NotNull(message = "Please enter username")
+  @Column(unique = true)
   //@Pattern(regexp = "^[A-Za-z][A-Za-z0-9_]{7,29}$", message = "Enter valid characters in username")
-	private String username;
-	
-	@NotNull(message = "Please enter the password")
+  private String username;
+
+  @NotNull(message = "Please enter the password")
   //@Pattern(regexp = "[A-Za-z0-9!@#$%^&*_]{8,15}", message = "Password must be 8-15 characters in length and can include A-Z, a-z, 0-9, or special characters !@#$%^&*_")
-	private String password;
-	
-	@Override
+  private String password;
+
+  @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
-  List<GrantedAuthority> auths = new ArrayList<>();
+    List<GrantedAuthority> auths = new ArrayList<>();
     auths.add(new SimpleGrantedAuthority(this.role.toString()));
-      return auths;
+    return auths;
   }
 
   @Override

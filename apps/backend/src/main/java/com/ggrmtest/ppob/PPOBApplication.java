@@ -6,8 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class PPOBApplication {
 
-	public static void main(String[] args) {
-			SpringApplication.run(PPOBApplication.class, args);
-	}
-
+  public static void main(String[] args) {
+    SpringApplication.run(PPOBApplication.class, args);
+  }
 }

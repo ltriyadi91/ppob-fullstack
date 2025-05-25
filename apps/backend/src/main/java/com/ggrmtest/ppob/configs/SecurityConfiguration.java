@@ -1,6 +1,6 @@
 package com.ggrmtest.ppob.configs;
-import java.util.List;
 
+import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -18,48 +18,53 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfiguration {
-    private final AuthenticationProvider authenticationProvider;
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    public SecurityConfiguration(
-        JwtAuthenticationFilter jwtAuthenticationFilter,
-        AuthenticationProvider authenticationProvider
-    ) {
-        this.authenticationProvider = authenticationProvider;
-        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-    }
+  private final AuthenticationProvider authenticationProvider;
+  private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf()
-                .disable()
-                .authorizeHttpRequests()
-                .requestMatchers("/api/v1/**")
-                .permitAll()
-                .anyRequest()
-                .authenticated()
-                .and()
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-                .authenticationProvider(authenticationProvider)
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+  public SecurityConfiguration(
+    JwtAuthenticationFilter jwtAuthenticationFilter,
+    AuthenticationProvider authenticationProvider
+  ) {
+    this.authenticationProvider = authenticationProvider;
+    this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+  }
 
-        return http.build();
-    }
+  @Bean
+  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    http
+      .csrf()
+      .disable()
+      .authorizeHttpRequests()
+      .requestMatchers("/api/v1/**")
+      .permitAll()
+      .anyRequest()
+      .authenticated()
+      .and()
+      .sessionManagement()
+      .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+      .and()
+      .authenticationProvider(authenticationProvider)
+      .addFilterBefore(
+        jwtAuthenticationFilter,
+        UsernamePasswordAuthenticationFilter.class
+      );
 
-    @Bean
-    CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
+    return http.build();
+  }
 
-        configuration.setAllowedOrigins(List.of("http://localhost:8080"));
-        configuration.setAllowedMethods(List.of("GET","POST"));
-        configuration.setAllowedHeaders(List.of("Authorization","Content-Type"));
+  @Bean
+  CorsConfigurationSource corsConfigurationSource() {
+    CorsConfiguration configuration = new CorsConfiguration();
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    configuration.setAllowedOrigins(List.of("http://localhost:8080"));
+    configuration.setAllowedMethods(List.of("GET", "POST"));
+    configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
 
-        source.registerCorsConfiguration("/**",configuration);
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 
-        return source;
-    }
+    source.registerCorsConfiguration("/**", configuration);
+
+    return source;
+  }
 }

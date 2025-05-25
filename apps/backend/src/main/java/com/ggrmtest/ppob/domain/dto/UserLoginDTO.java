@@ -6,17 +6,18 @@ import lombok.experimental.Accessors;
 
 @Data
 @Accessors(chain = true)
-public class UserLoginDTO  {
-	private String username;
-	private String password;
+public class UserLoginDTO {
 
-	public static UserRegisterDTO fromUser(User user) {
-		return new UserRegisterDTO().setUsername(user.getUsername()).setPassword(user.getPassword());
-	}
+  private String username;
+  private String password;
 
-	public User toUser(User user) {
-		return user
-			.setUsername(username)
-			.setPassword(password);
-	}
+  public static UserRegisterDTO fromUser(User user) {
+    return new UserRegisterDTO()
+      .setUsername(user.getUsername())
+      .setPassword(user.getPassword());
+  }
+
+  public User toUser(User user) {
+    return user.setUsername(username).setPassword(password);
+  }
 }
