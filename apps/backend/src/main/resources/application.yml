@@ -23,35 +23,15 @@ spring:
   jpa:
     properties:
       hibernate:
-        jdbc:
-          time_zone: UTC
-          batch_size: 25
-        query:
-          fail_on_pagination_over_collection_fetch: true
-          in_clause_parameter_padding: true
-        generate_statistics: false
-        order_updates: true
-        connection:
-          provider_disables_autocommit: true
-        order_inserts: true
         default_schema: ppob
     hibernate:
-      ddl-auto: validate
-      naming:
-        implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
-        physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
-    open-in-view: false
+      ddl-auto: update
+    open-in-view: true
   liquibase:
     change-log: classpath:db/changelog/master.xml
     default-schema: ppob
     contexts: dev
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: https://codecake.kinde.com
-          jwk-set-uri: https://codecake.kinde.com/.well-known/jwks
-          audiences: http://localhost:8080/api
+
   devtools:
     restart:
       enabled: false
@@ -62,6 +42,11 @@ spring:
       enabled: true
       max-file-size: 100MB
       max-request-size: 100MB
+
+security:
+  jwt:
+    secret-key: a2f8da686fa44c03135dab60fbbca9e351251ada7f908904d25e6fd7489447fc
+    expiration-time: 3600000
 
 server:
   port: 8080
