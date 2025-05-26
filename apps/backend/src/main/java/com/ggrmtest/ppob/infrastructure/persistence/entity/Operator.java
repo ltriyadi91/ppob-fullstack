@@ -11,24 +11,24 @@ import lombok.experimental.Accessors;
 
 @Entity
 @Data
-@Table(name = "categories")
+@Table(name = "operators")
 @Accessors(chain = true)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class Category {
+public class Operator {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   @EqualsAndHashCode.Include
   private Long id;
 
-  @NotNull(message = "Category Name cannot be NULL")
-  private String categoryName;
+  @NotNull(message = "Operator Name cannot be NULL")
+  private String operatorName;
 
-  private String categoryDescription;
+  private String operatorDescription;
 
-  @NotNull(message = "Category Image cannot be NULL")
+  @NotNull(message = "Operator Image cannot be NULL")
   private String imageUrl;
 
-  private String slug;
   private Boolean isActive;
+  private String slug;
 }

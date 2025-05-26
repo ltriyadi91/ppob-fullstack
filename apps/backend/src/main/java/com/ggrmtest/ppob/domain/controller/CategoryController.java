@@ -4,6 +4,7 @@ import com.ggrmtest.ppob.domain.dto.CategoryDTO;
 import com.ggrmtest.ppob.infrastructure.persistence.service.CategoryQueryService;
 import com.ggrmtest.ppob.infrastructure.persistence.service.CategoryService;
 import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +32,10 @@ public class CategoryController {
   @PreAuthorize("hasAuthority('ADMIN')")
   @PostMapping
   public ResponseEntity<CategoryDTO> saveCategory(@RequestBody CategoryDTO categoryDTO) {
-    CategoryDTO category = categoryService.addCategory(categoryDTO);
+    var categoryId = categoryDTO.getCategoryId();
+    CategoryDTO category = Objects.nonNull(categoryId)
+      ? categoryService.saveCategory(categoryDTO)
+      : categoryService.addCategory(categoryDTO);
     return ResponseEntity.status(HttpStatus.OK).body(category);
   }
 }

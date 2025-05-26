@@ -27,8 +27,9 @@ public class CategoryServiceImpl implements CategoryService {
   @Override
   public CategoryDTO saveCategory(CategoryDTO categoryDTO) {
     var category = categoryRepository
-      .findByCategoryName(categoryDTO.getCategoryName())
-      .orElseGet(() -> new Category());
+      .findById(categoryDTO.getCategoryId())
+      .orElseThrow(() -> new RuntimeException("Category not found"));
+
     categoryRepository.save(categoryDTO.toCategory(category));
     return categoryDTO;
   }

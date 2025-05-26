@@ -11,11 +11,14 @@
             </not>
         </preConditions>
         <createTable tableName="categories">
-            <column name="id" type="bigint">
+            <column autoIncrement="true" name="id" type="bigint">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="pk_categories"/>
             </column>
             <column name="category_name" type="varchar(200)"/>
+            <column name="category_description" type="text"/>
+            <column name="is_active" type="boolean"/>
             <column name="image_url" type="text"/>
+            <column name="slug" type="text"/>
             <column name="created_at" type="timestamp" />
             <column name="created_by" type="text"/>
             <column name="updated_at" type="timestamp"/>
@@ -23,5 +26,6 @@
             <column name="deleted_at" type="timestamp"/>
             <column name="deleted_by" type="text"/>
         </createTable>
+        <sqlFile path="db/sql/PPOB-CATEGORY-02.sql"/>
     </changeSet>
 </databaseChangeLog>

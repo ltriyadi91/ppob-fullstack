@@ -11,7 +11,7 @@
             </not>
         </preConditions>
         <createTable tableName="users">
-            <column name="id" type="bigint">
+            <column autoIncrement="true" name="id" type="bigint">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="pk_users"/>
             </column>
             <column name="first_name" type="varchar(200)"/>
@@ -29,5 +29,6 @@
             <column name="deleted_at" type="timestamp"/>
             <column name="deleted_by" type="text"/>
         </createTable>
+        <sqlFile path="db/sql/PPOB-USER-01.sql"/>
     </changeSet>
 </databaseChangeLog>
