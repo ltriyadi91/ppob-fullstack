@@ -13,5 +13,7 @@
   <include file="/db/changelog/PPOB-USER-01.xml"/>
   <include file="/db/changelog/PPOB-CATEGORY-02.xml"/>
   <include file="/db/changelog/PPOB-OPERATOR-03.xml"/>
+  <include file="/db/changelog/PPOB-PREFIX-NUMBER-04.xml"/>
+  <include file="/db/changelog/PPOB-SLUG-05.xml"/>
 
 </databaseChangeLog>
