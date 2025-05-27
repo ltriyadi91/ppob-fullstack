@@ -1,9 +1,15 @@
 package com.ggrmtest.ppob.infrastructure.persistence.entity;
 
+import com.ggrmtest.ppob.common.enumeration.TickerType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -11,27 +17,27 @@ import lombok.experimental.Accessors;
 
 @Entity
 @Data
-@Table(name = "categories")
+@Table(name = "tickers")
 @Accessors(chain = true)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class Category {
+public class Ticker {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   @EqualsAndHashCode.Include
   private Long id;
 
-  @NotNull(message = "Category Name cannot be NULL")
-  private String categoryName;
+  private String description;
 
-  private String categoryDescription;
+  @ManyToOne(fetch = FetchType.LAZY)
+  private Operator operator;
 
-  @NotNull(message = "Category Image cannot be NULL")
-  private String imageUrl;
+  @ManyToOne(fetch = FetchType.LAZY)
+  private Category category;
 
-  @NotNull(message = "Slug cannot be NULL")
-  private String slug;
+  @Enumerated(EnumType.STRING)
+  @Column(name = "type")
+  private TickerType type;
 
   private Boolean isActive;
-  private Boolean isInputNumberRequired;
 }
