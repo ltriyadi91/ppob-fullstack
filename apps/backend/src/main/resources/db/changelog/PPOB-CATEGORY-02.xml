@@ -17,6 +17,7 @@
             <column name="category_name" type="varchar(200)"/>
             <column name="category_description" type="text"/>
             <column name="is_active" type="boolean"/>
+            <column name="is_input_number_required" type="boolean"/>
             <column name="image_url" type="text"/>
             <column name="slug" type="text"/>
             <column name="created_at" type="timestamp" />

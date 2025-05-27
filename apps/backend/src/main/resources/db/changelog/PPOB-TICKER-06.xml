@@ -4,18 +4,21 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
-    <changeSet id="PPOB-SLUG-04-CREATE-TABLE" author="ltriyadi91">
+    <changeSet id="PPOB-TICKER-06-CREATE-TABLE" author="ltriyadi91">
         <preConditions onFail="MARK_RAN">
             <not>
-                <tableExists tableName="slugs" />
+                <tableExists tableName="tickers" />
             </not>
         </preConditions>
-        <createTable tableName="slugs">
+        <createTable tableName="tickers">
             <column autoIncrement="true" name="id" type="bigint">
-                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_slugs"/>
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_tickers"/>
             </column>
+            <column name="description" type="varchar(200)"/>
+            <column name="type" type="varchar(200)"/>
             <column name="category_id" type="bigint"/>
-            <column name="slug" type="varchar(100)"/>
+            <column name="operator_id" type="bigint"/>
+            <column name="is_active" type="boolean"/>
             <column name="created_at" type="timestamp" />
             <column name="created_by" type="text"/>
             <column name="updated_at" type="timestamp"/>
@@ -23,8 +26,11 @@
             <column name="deleted_at" type="timestamp"/>
             <column name="deleted_by" type="text"/>
         </createTable>
-        <addForeignKeyConstraint baseTableName="slugs" baseColumnNames="category_id" constraintName="fk_category_slugs"
-                            referencedTableName="categories" referencedColumnNames="id" />
-        <sqlFile path="db/sql/PPOB-SLUG-05.sql"/>
+        <addForeignKeyConstraint baseTableName="tickers" baseColumnNames="operator_id" constraintName="fk_operator_tickers"
+            referencedTableName="operators" referencedColumnNames="id" />
+        <addForeignKeyConstraint baseTableName="tickers" baseColumnNames="category_id" constraintName="fk_category_tickers"
+                    referencedTableName="categories" referencedColumnNames="id" />
+        <sqlFile path="db/sql/PPOB-TICKER-06.sql"/>
+
     </changeSet>
 </databaseChangeLog>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="PPOB-PRODUCT-05-CREATE-TABLE" author="ltriyadi91">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="products" />
+            </not>
+        </preConditions>
+        <createTable tableName="products">
+            <column autoIncrement="true" name="id" type="bigint">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_products"/>
+            </column>
+            <column name="operator_id" type="bigint"/>
+            <column name="category_id" type="bigint"/>
+            <column name="product_name" type="varchar(200)"/>
+            <column name="product_description" type="text"/>
+            <column name="price_numeric" type="numeric(19,2)"/>
+            <column name="price_label" type="varchar(100)"/>
+            <column name="new_price_numeric" type="numeric(19,2)"/>
+            <column name="new_price_label" type="varchar(100)"/>
+            <column name="discount_percentage" type="decimal"/>
+            <column name="is_discount" type="boolean"/>
+            <column name="is_available" type="boolean"/>
+            <column name="created_at" type="timestamp"/>
+            <column name="created_by" type="text"/>
+            <column name="updated_at" type="timestamp"/>
+            <column name="updated_by" type="text"/>
+            <column name="deleted_at" type="timestamp"/>
+            <column name="deleted_by" type="text"/>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="products" baseColumnNames="operator_id" constraintName="fk_operator_products"
+                    referencedTableName="operators" referencedColumnNames="id" />
+        <addForeignKeyConstraint baseTableName="products" baseColumnNames="category_id" constraintName="fk_category_products"
+                    referencedTableName="categories" referencedColumnNames="id" />
+
+        <sqlFile path="db/sql/PPOB-PRODUCT-05.sql"/>
+    </changeSet>
+</databaseChangeLog>
