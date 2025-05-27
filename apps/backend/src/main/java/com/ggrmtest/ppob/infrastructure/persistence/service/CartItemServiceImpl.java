@@ -48,15 +48,17 @@ public class CartItemServiceImpl implements CartItemService {
     if (cartItem != null) {
       throw new ApiRequestException("Cart item already exists", HttpStatus.BAD_REQUEST);
     }
-
+    var finalPrice = product.getIsDiscount()
+      ? product.getNewPriceNumeric()
+      : product.getPriceNumeric();
     cartItem = new CartItem();
     cartItem.setCart(cart);
     cartItem.setProduct(product);
     cartItem.setCartQuantity(1);
-    cartItem.setCartPrice(product.getPriceNumeric());
+    cartItem.setCartPrice(finalPrice);
     cartItem = cartItemRepository.save(cartItem);
 
-    cart.setTotalPrice(cart.getTotalPrice().add(product.getPriceNumeric()));
+    cart.setTotalPrice(cart.getTotalPrice().add(finalPrice));
     cart.setTotalQuantity(cart.getTotalQuantity() + 1);
     cartRepository.save(cart);
 

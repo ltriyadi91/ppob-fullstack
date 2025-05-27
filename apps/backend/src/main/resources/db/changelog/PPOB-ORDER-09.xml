@@ -1,0 +1,29 @@
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="PPOB-ORDER-09-CREATE-TABLE" author="ltriyadi91">
+        <preConditions onFail="MARK_RAN">
+          <not>
+              <tableExists tableName="orders" />
+          </not>
+        </preConditions>
+        <createTable tableName="orders">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="INT"/>
+            <column name="total_amount" type="NUMERIC(19,2)"/>
+            <column name="order_status" type="TEXT"/>
+            <column name="created_at" type="timestamp" />
+            <column name="created_by" type="text"/>
+            <column name="updated_at" type="timestamp"/>
+            <column name="updated_by" type="text"/>
+            <column name="deleted_at" type="timestamp"/>
+            <column name="deleted_by" type="text"/>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="orders" baseColumnNames="user_id" constraintName="fk_user_orders"
+            referencedTableName="users" referencedColumnNames="id" />
+    </changeSet>
+</databaseChangeLog>

@@ -37,6 +37,6 @@ public class CartQueryServiceImpl implements CartQueryService {
     var dto = CartDTO.fromCart(cart);
     dto.setCartItems(cartItems);
 
-    return CartDTO.fromCart(cart);
+    return dto;
   }
 }

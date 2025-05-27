@@ -18,4 +18,6 @@
   <include file="/db/changelog/PPOB-TICKER-06.xml"/>
   <include file="/db/changelog/PPOB-CART-07.xml"/>
   <include file="/db/changelog/PPOB-CART-ITEM-08.xml"/>
+  <include file="/db/changelog/PPOB-ORDER-09.xml"/>
+  <include file="/db/changelog/PPOB-ORDER-ITEM-10.xml"/>
 </databaseChangeLog>
