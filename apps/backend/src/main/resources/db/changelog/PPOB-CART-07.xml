@@ -1,0 +1,31 @@
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="PPOB-CART-07-CREATE-TABLE" author="ltriyadi91">
+        <preConditions onFail="MARK_RAN">
+          <not>
+              <tableExists tableName="carts" />
+          </not>
+        </preConditions>
+        <createTable tableName="carts">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="user_id" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="total_price" type="numeric(19,2)"/>
+            <column name="total_quantity" type="int"/>
+            <column name="created_at" type="timestamp" />
+            <column name="created_by" type="text"/>
+            <column name="updated_at" type="timestamp"/>
+            <column name="updated_by" type="text"/>
+            <column name="deleted_at" type="timestamp"/>
+            <column name="deleted_by" type="text"/>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="carts" baseColumnNames="user_id" constraintName="fk_user_carts"
+            referencedTableName="users" referencedColumnNames="id" />
+    </changeSet>
+</databaseChangeLog>

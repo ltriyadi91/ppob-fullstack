@@ -16,5 +16,6 @@
   <include file="/db/changelog/PPOB-PREFIX-NUMBER-04.xml"/>
   <include file="db/changelog/PPOB-PRODUCT-05.xml"/>
   <include file="/db/changelog/PPOB-TICKER-06.xml"/>
-
+  <include file="/db/changelog/PPOB-CART-07.xml"/>
+  <include file="/db/changelog/PPOB-CART-ITEM-08.xml"/>
 </databaseChangeLog>

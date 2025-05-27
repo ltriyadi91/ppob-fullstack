@@ -5,8 +5,10 @@ import com.ggrmtest.ppob.domain.dto.UserLoginDTO;
 import com.ggrmtest.ppob.domain.dto.UserRegisterDTO;
 import com.ggrmtest.ppob.infrastructure.persistence.JwtService;
 import com.ggrmtest.ppob.infrastructure.persistence.entity.User;
+import com.ggrmtest.ppob.infrastructure.persistence.exception.ApiRequestException;
 import com.ggrmtest.ppob.infrastructure.persistence.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -38,7 +40,9 @@ public class AuthenticationService {
     var inputDto = input
       .setPassword(passwordEncoder.encode(input.getPassword()))
       .setRole(Role.USER);
+
     userRepository.save(inputDto.toUser(new User()));
+    inputDto.setPassword(null);
     return inputDto;
   }
 
@@ -62,5 +66,11 @@ public class AuthenticationService {
     var user = userRepository.findByUsername(input.getUsername()).orElseThrow();
 
     return user;
+  }
+
+  public User findByUserName(String username) {
+    return userRepository
+      .findByUsername(username)
+      .orElseThrow(() -> new ApiRequestException("User not found", HttpStatus.NOT_FOUND));
   }
 }

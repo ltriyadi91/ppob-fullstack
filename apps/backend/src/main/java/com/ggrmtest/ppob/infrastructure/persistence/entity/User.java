@@ -30,7 +30,7 @@ public class User implements UserDetails {
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   @EqualsAndHashCode.Include
-  private Integer id;
+  private Long id;
 
   @NotNull(message = "First Name cannot be NULL")
   //@Pattern(regexp = "[A-Za-z.\\s]+", message = "Enter valid characters in first name")
