@@ -42,10 +42,12 @@ public class PPOBDetailQueryServiceImpl implements PPOBDetailQueryService {
     );
 
     if (inputParam != null && !inputParam.isEmpty()) {
-      var prefixNumber = prefixNumberRepository.findAll().stream().filter(p ->
-          p.getPrefixNumber().contains(inputParam)
-        ).findFirst();
-  
+      var prefixNumber = prefixNumberRepository
+        .findAll()
+        .stream()
+        .filter(p -> p.getPrefixNumber().contains(inputParam))
+        .findFirst();
+
       if (!prefixNumber.isEmpty()) {
         products =
           products
