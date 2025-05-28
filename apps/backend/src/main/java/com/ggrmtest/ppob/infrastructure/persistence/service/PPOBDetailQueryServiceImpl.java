@@ -8,6 +8,8 @@ import com.ggrmtest.ppob.infrastructure.persistence.entity.Product;
 import com.ggrmtest.ppob.infrastructure.persistence.repository.PrefixNumberRepository;
 import com.ggrmtest.ppob.infrastructure.persistence.repository.ProductRepository;
 import com.ggrmtest.ppob.infrastructure.persistence.repository.TickerRepository;
+
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -37,11 +39,13 @@ public class PPOBDetailQueryServiceImpl implements PPOBDetailQueryService {
       categoryDto.getCategoryId()
     );
 
-    List<Product> products = productRepository.findByCategoryGroupByOperator(
-      categoryDto.getCategoryId()
-    );
+    List<Product> products = new ArrayList<>();
 
-    if (inputParam != null && !inputParam.isEmpty()) {
+    if (inputParam != null && !inputParam.isEmpty() && inputParam.length() >= 4 && inputParam.length() <= 5) {
+      products = productRepository.findByCategoryGroupByOperator(
+        categoryDto.getCategoryId()
+      );
+
       var prefixNumber = prefixNumberRepository
         .findAll()
         .stream()
@@ -77,6 +81,7 @@ public class PPOBDetailQueryServiceImpl implements PPOBDetailQueryService {
     detailDto.setProducts(productDtos);
     detailDto.setOperators(operatorDtos);
     detailDto.setTickers(tickerDtos);
+    detailDto.setCategory(categoryDto);
 
     return detailDto;
   }

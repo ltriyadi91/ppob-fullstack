@@ -8,6 +8,7 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class PPOBDetailDTO {
 
+  private CategoryDTO category;
   private List<TickerDTO> tickers;
   private List<OperatorDTO> operators;
   private List<ProductDTO> products;

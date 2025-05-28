@@ -1,6 +1,9 @@
 package com.ggrmtest.ppob.configs;
 
-import java.util.List;
+import static org.springframework.security.config.Customizer.withDefaults;
+
+import java.util.Arrays;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -19,6 +22,15 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfiguration {
 
+  @Value("${cors.allowed.origin}")
+  private String urlOrigin;
+
+  @Value("${cors.allowed.origin.pattern}")
+  private String urlOriginPattern;
+
+  @Value("${cors.url.pattern}")
+  private String urlPattern;
+
   private final AuthenticationProvider authenticationProvider;
   private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
@@ -35,6 +47,15 @@ public class SecurityConfiguration {
     http
       .csrf()
       .disable()
+      .cors(cors ->
+        cors.configurationSource(request -> {
+          CorsConfiguration configuration = new CorsConfiguration();
+          configuration.setAllowedOrigins(Arrays.asList("*"));
+          configuration.setAllowedMethods(Arrays.asList("*"));
+          configuration.setAllowedHeaders(Arrays.asList("*"));
+          return configuration;
+        })
+      )
       .authorizeHttpRequests()
       .requestMatchers("/api/v1/**")
       .permitAll()
@@ -56,10 +77,12 @@ public class SecurityConfiguration {
   @Bean
   CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
-
-    configuration.setAllowedOrigins(List.of("http://localhost:8080"));
-    configuration.setAllowedMethods(List.of("GET", "POST"));
-    configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+    configuration.setAllowCredentials(true);
+    if (urlOriginPattern != "") configuration.addAllowedOriginPattern(urlOriginPattern);
+    if (urlOrigin != "") configuration.addAllowedOrigin(urlOrigin);
+    configuration.addAllowedHeader("*");
+    configuration.addAllowedMethod("*");
+    configuration.addAllowedOrigin("*");
 
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 

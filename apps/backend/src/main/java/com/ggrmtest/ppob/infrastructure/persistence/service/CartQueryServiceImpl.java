@@ -5,7 +5,6 @@ import com.ggrmtest.ppob.domain.dto.CartItemDTO;
 import com.ggrmtest.ppob.infrastructure.persistence.exception.ApiRequestException;
 import com.ggrmtest.ppob.infrastructure.persistence.repository.CartItemRepository;
 import com.ggrmtest.ppob.infrastructure.persistence.repository.CartRepository;
-import com.ggrmtest.ppob.infrastructure.persistence.repository.ProductRepository;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

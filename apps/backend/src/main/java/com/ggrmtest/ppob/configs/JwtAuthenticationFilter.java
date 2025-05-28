@@ -6,6 +6,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -72,7 +73,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
           SecurityContextHolder.getContext().setAuthentication(authToken);
         }
       }
-
+      response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "*");
+      response.setHeader(
+        HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS,
+        "GET, POST, PATCH, DELETE, OPTIONS"
+      );
       filterChain.doFilter(request, response);
     } catch (Exception exception) {
       handlerExceptionResolver.resolveException(request, response, null, exception);
