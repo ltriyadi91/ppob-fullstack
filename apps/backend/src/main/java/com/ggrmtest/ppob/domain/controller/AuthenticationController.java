@@ -31,7 +31,7 @@ public class AuthenticationController {
     return ResponseEntity.ok(registeredUser);
   }
 
-  @PostMapping("/seller/signup")
+  @PostMapping("/admin/signup")
   public ResponseEntity<UserRegisterDTO> registerSeller(
     @RequestBody UserRegisterDTO userDto
   ) {
