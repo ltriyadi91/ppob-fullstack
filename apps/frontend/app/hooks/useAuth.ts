@@ -12,7 +12,13 @@ interface LoginCredentials {
   password: string;
 }
 
-export function useAuth() {
+export function useAuth({
+  redirectPath = '/pulsa',
+  redirectAfterLogout = '/pulsa',
+}: {
+  redirectPath?: string;
+  redirectAfterLogout?: string;
+}) {
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -41,24 +47,21 @@ export function useAuth() {
       if (response.ok) {
         const data: AuthResponse = await response.json();
         if (data.token) {
-          Cookies.set('token', data.token, { expires: 7 }); // Store token for 7 days
+          Cookies.set('token', data.token, { expires: 7 });
           setToken(data.token);
-          console.log('Login successful! Token stored.');
-          router.push('/pulsa'); // Redirect to /pulsa
+          router.push(redirectPath);
         } else {
           const errorMessage = 'Login successful, but no token received.';
-          console.error(errorMessage);
           setError(errorMessage);
         }
       } else {
         const errorData = await response.json();
         const errorMessage = errorData.message || 'Unknown error';
-        console.error('Login failed:', errorMessage);
         setError('Login failed: ' + errorMessage);
       }
     } catch (err) {
-      const errorMessage = (err instanceof Error) ? err.message : 'An unexpected error occurred.';
-      console.error('Network error or unexpected issue:', err);
+      const errorMessage =
+        err instanceof Error ? err.message : 'An unexpected error occurred.';
       setError('An error occurred during login: ' + errorMessage);
     } finally {
       setIsLoading(false);
@@ -68,7 +71,7 @@ export function useAuth() {
   const logout = () => {
     Cookies.remove('token');
     setToken(null);
-    router.push('/login'); // Redirect to login page after logout
+    router.push(redirectAfterLogout);
   };
 
   return {

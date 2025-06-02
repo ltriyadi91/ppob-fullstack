@@ -1,11 +1,14 @@
-"use client";
-import Header from "@/components/Header/Header";
-import ServiceGrid from "@/components/ServiceGrid/ServiceGrid";
-import WelcomeSection from "@/components/WelcomeSection/WelcomeSection";
+'use client';
+import Header from '@/components/Header/Header';
+import ServiceGrid from '@/components/ServiceGrid/ServiceGrid';
+import WelcomeSection from '@/components/WelcomeSection/WelcomeSection';
 import { useAuth } from './hooks/useAuth'; // Import the new hook
 
 export default function HomePage() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth({
+    redirectPath: '/pulsa',
+    redirectAfterLogout: '/login',
+  });
 
   return (
     <div className="min-h-screen bg-gray-100 font-sans text-gray-800 flex flex-col">

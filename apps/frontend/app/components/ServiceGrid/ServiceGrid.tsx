@@ -32,6 +32,7 @@ export function ServiceGrid() {
 
     fetchCategories();
   }, []);
+  console.log({ categories })
 
   if (loading) {
     return <div className="text-center p-4">Loading services...</div>;
@@ -44,7 +45,7 @@ export function ServiceGrid() {
   return (
     <section className="bg-white p-4 mb-4 rounded-lg shadow-sm">
       <div className="grid grid-cols-4 gap-4 text-center">
-        {categories.map((service) => (
+        {/* {categories.map((service) => (
           <button
             key={service.categoryId}
             className="flex flex-col items-center p-2 focus:outline-none focus:ring-2 focus:ring-red-500 rounded-lg"
@@ -55,7 +56,7 @@ export function ServiceGrid() {
             </div>
             <span className="text-xs font-medium">{service.categoryName}</span>
           </button>
-        ))}
+        ))} */}
       </div>
     </section>
   );

@@ -30,6 +30,7 @@ const useDebounceInput = ({ callback, delay = 3000 }: autoSaveType) => {
       saveTimeout.current = null;
     }
 
+    //@ts-expect-error setTimeout return type is incompatible with useRef type
     saveTimeout.current = setTimeout(() => {
       if (keyPressedRef.current) {
         console.log('handleChangeForm');
@@ -40,6 +41,7 @@ const useDebounceInput = ({ callback, delay = 3000 }: autoSaveType) => {
   };
 
   const clearAutoSave = () => {
+    //@ts-expect-error setTimeout return type is incompatible with useRef type
     clearTimeout(saveTimeout.current);
     saveTimeout.current = null;
     keyPressedRef.current = false;
