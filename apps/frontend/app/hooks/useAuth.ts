@@ -12,20 +12,24 @@ interface LoginCredentials {
   password: string;
 }
 
+type AuthInput = {
+  redirectPath?: string;
+  redirectAfterLogout?: string;
+  isDashboard?: boolean;
+}
+
 export function useAuth({
   redirectPath = '/pulsa',
   redirectAfterLogout = '/pulsa',
-}: {
-  redirectPath?: string;
-  redirectAfterLogout?: string;
-}) {
+  isDashboard = false,
+}: AuthInput) {
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
-    const storedToken = Cookies.get('token');
+    const storedToken = Cookies.get(isDashboard ? 'dashboard_token' : 'token');
     if (storedToken) {
       setToken(storedToken);
     }
@@ -36,7 +40,7 @@ export function useAuth({
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch('http://localhost:8080/api/v1/auth/login', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_V1}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -47,7 +51,7 @@ export function useAuth({
       if (response.ok) {
         const data: AuthResponse = await response.json();
         if (data.token) {
-          Cookies.set('token', data.token, { expires: 7 });
+          Cookies.set(isDashboard ? 'dashboard_token' : 'token', data.token, { expires: 1 });
           setToken(data.token);
           router.push(redirectPath);
         } else {
@@ -69,7 +73,7 @@ export function useAuth({
   };
 
   const logout = () => {
-    Cookies.remove('token');
+    Cookies.remove(isDashboard ? 'dashboard_token' : 'token');
     setToken(null);
     router.push(redirectAfterLogout);
   };

@@ -1,5 +1,6 @@
 package com.ggrmtest.ppob.domain.controller;
 
+import com.ggrmtest.ppob.common.dto.GeneralResponseDTO;
 import com.ggrmtest.ppob.domain.dto.PPOBDetailDTO;
 import com.ggrmtest.ppob.infrastructure.persistence.service.PPOBDetailQueryService;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +20,7 @@ public class PPOBDetailController {
   private final PPOBDetailQueryService ppobDetailQueryService;
 
   @GetMapping("/ppob-detail/{slug}")
-  public ResponseEntity<PPOBDetailDTO> getPPOBDetail(
+  public ResponseEntity<GeneralResponseDTO<PPOBDetailDTO>> getPPOBDetail(
     @PathVariable String slug,
     @RequestParam(defaultValue = "") String inputNumber
   ) {
@@ -27,6 +28,8 @@ public class PPOBDetailController {
       slug,
       inputNumber
     );
-    return ResponseEntity.status(HttpStatus.OK).body(detail);
+    
+    var resp = new GeneralResponseDTO<PPOBDetailDTO>();
+    return resp.ok(detail);
   }
 }

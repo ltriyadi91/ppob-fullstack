@@ -1,5 +1,5 @@
 'use client';
-import { useRouter, useParams } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import PhoneNumberInput from '@/components/PhoneNumberInput/PhoneNumberInput'; // Import the new component
 import useDebounceInput from '@/hooks/useDebounceInput';
@@ -7,72 +7,117 @@ import DetailHeader from '@/components/DetailHeader/DetailHeader'; // Import the
 import OperatorDisplay from '@/components/OperatorDisplay/OperatorDisplay';
 import Ticker from '@/components/Ticker/Ticker';
 import ProductItem from '@/components/ProductItem/ProductItem'; // Import the new ProductItem component
+import { useQuery } from '@tanstack/react-query';
+
+type Category = {
+  categoryId: number;
+  categoryName: string;
+  categoryDescription: string;
+  isActive: boolean;
+  isInputNumberRequired: boolean;
+  slug: string;
+  imageUrl: string;
+};
+
+type TickerItem = {
+  message: string;
+  category: Category;
+};
+
+type OperatorItem = {
+  operatorId: number;
+  operatorName: string;
+  operatorDescription: string;
+  isActive: boolean;
+  slug: string;
+  imageUrl: string;
+};
+
+type ProductItem = {
+  id: number;
+  operatorId: number;
+  categoryId: number;
+  productName: string;
+  productDescription: string;
+  priceNumeric: number;
+  priceLabel: string;
+  newPriceNumeric: number;
+  newPriceLabel: string;
+  discountPercentage: number;
+  isDiscount: boolean;
+  isAvailable: boolean;
+};
+
+type CategoryDetail = {
+  category: Category;
+  operators: OperatorItem[];
+  products: ProductItem[];
+  tickers: TickerItem[];
+};
+
+const MAXIMUM_INPUT_NUMBER = 4;
+const MINIMUM_INPUT_NUMBER = 3;
 
 export default function DetailPage() {
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [categoryDetail, setCategory] = useState({
+  const [categoryDetail, setCategory] = useState<CategoryDetail['category']>({
+    categoryId: 0,
     categoryName: '',
+    categoryDescription: '',
+    isActive: false,
+    isInputNumberRequired: false,
+    slug: '',
     imageUrl: '',
   });
   const [showUnavailableMessage, setShowUnavailableMessage] = useState(true);
-  const [tickers, setTickers] = useState<any[]>([]);
-  const [operators, setOperators] = useState<any[]>([]);
-  const [products, setProducts] = useState<any[]>([]);
+  const [tickers, setTickers] = useState<TickerItem[]>([]);
+  const [operators, setOperators] = useState<OperatorItem[]>([]);
+  const [products, setProducts] = useState<ProductItem[]>([]);
 
-  const params = useParams(); // Get params from the URL
-  const { slug } = params; // Extract the slug
+  const params = useParams();
+  const { slug } = params;
+
+  const {
+    data: categoryData,
+    refetch,
+    isLoading,
+  } = useQuery({
+    queryKey: ['categoriesData'],
+    queryFn: () =>
+      fetch(
+        `${process.env.NEXT_PUBLIC_API_V1}/ppob-detail/${slug}?inputNumber=${phoneNumber}`
+      ).then((res) => res.json()),
+  });
+
   const { handleChangeForm } = useDebounceInput({
-    callback: () =>
-      fetchData({ slugInput: String(slug), inputNumber: phoneNumber }),
+    callback: async () => {
+      await refetch();
+    },
     delay: 500,
   });
 
-  const resetProducts = () => {
-    setProducts([]); // Clear products if conditions are not met
-    setOperators([]); // Clear operators
-    setTickers([]); // Clear tickers
-  };
-
-  async function fetchData({
-    slugInput,
-    inputNumber,
-  }: {
-    slugInput: string;
-    inputNumber: string;
-  }) {
-    console.log(
-      'fetchData called with slugInput:',
-      slugInput,
-      'and inputNumber:',
-      inputNumber
-    );
-
-    try {
-      const response = await fetch(
-        `http://localhost:8080/api/v1/ppob-detail/${slugInput}?inputNumber=${inputNumber}`
-      );
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      console.log({ data });
-      setTickers(data.tickers || []);
-      setOperators(data.operators || []);
-      setProducts(data.products || []);
-      setCategory(data.category);
-    } catch (e: any) {
-      console.error('Failed to fetch detail data:', e);
-    }
-  }
-
   useEffect(() => {
-    fetchData({ slugInput: String(slug), inputNumber: '' });
-  }, [slug]);
+    if (categoryData) {
+      setCategory(categoryData?.data?.category);
+      setTickers(categoryData?.data?.tickers);
+      setOperators(categoryData?.data?.operators);
+      setProducts(categoryData?.data?.products);
+    }
+  }, [categoryData]);
+
+  const resetProducts = () => {
+    setProducts([]);
+    setOperators([]);
+    setTickers([]);
+  };
 
   const handleChangeInput = (input: string) => {
     setPhoneNumber(input);
 
-    if (input.length >= 4 && input.length <= 5) {
+    if (
+      input.length >= MINIMUM_INPUT_NUMBER &&
+      input.length <= MAXIMUM_INPUT_NUMBER
+    ) {
       handleChangeForm();
     }
 
@@ -86,24 +131,18 @@ export default function DetailPage() {
   const operatorImageUrl = operators.length > 0 ? operators[0].imageUrl : '';
 
   return (
-    // Added bg-white to ensure the page has a distinct background
     <div className="flex flex-col flex-grow bg-white min-h-screen">
-      {/* Header for PaketDataPage */}
       <DetailHeader categoryName={categoryDetail.categoryName} />
-
-      {/* Info Banner */}
       <Ticker
         tickerMessage={tickerMessage}
         showUnavailableMessage={showUnavailableMessage}
         setShowUnavailableMessage={setShowUnavailableMessage}
       />
-
-      {/* Phone Number Input Section - now a component */}
       <PhoneNumberInput
         initialPhoneNumber={phoneNumber}
         onPhoneNumberChange={handleChangeInput}
+        isLoading={isLoading}
       />
-
       <section className="flex-grow p-4 mx-4 mt-4 rounded-lg shadow-sm bg-white">
         <OperatorDisplay
           categoryName={categoryDetail.categoryName}

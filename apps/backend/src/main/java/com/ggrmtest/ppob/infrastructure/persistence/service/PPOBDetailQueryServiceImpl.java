@@ -41,26 +41,24 @@ public class PPOBDetailQueryServiceImpl implements PPOBDetailQueryService {
 
     List<Product> products = new ArrayList<>();
 
-    if (inputParam != null && !inputParam.isEmpty() && inputParam.length() >= 4 && inputParam.length() <= 5) {
+    if (!inputParam.isEmpty()) {
+      var prefixNumber = prefixNumberRepository
+      .findAll()
+      .stream()
+      .filter(p -> p.getPrefixNumber().contains(inputParam))
+      .findFirst();
+
       products = productRepository.findByCategoryGroupByOperator(
         categoryDto.getCategoryId()
       );
 
-      var prefixNumber = prefixNumberRepository
-        .findAll()
-        .stream()
-        .filter(p -> p.getPrefixNumber().contains(inputParam))
-        .findFirst();
-
-      if (!prefixNumber.isEmpty()) {
-        products =
-          products
+      products =
+        products
             .stream()
             .filter(product ->
-              product.getOperator().getId() == prefixNumber.get().getOperator().getId()
+              product.getOperator().getId().toString().contains(prefixNumber.get().getOperator().getId().toString())
             )
             .toList();
-      }
     }
 
     var productDtos = products.stream().map(ProductDTO::fromEntity).toList();
