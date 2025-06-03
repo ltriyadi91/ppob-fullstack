@@ -1,6 +1,6 @@
-"use client";
-import { useRouter } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
+'use client';
+import { useRouter } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
 
 interface Category {
   categoryId: number;
@@ -15,16 +15,18 @@ export function ServiceGrid() {
     queryKey: ['categoriesData'],
     queryFn: () =>
       fetch(`${process.env.NEXT_PUBLIC_API_V1}/categories`).then((res) =>
-        res.json(),
+        res.json()
       ),
-  })
+  });
 
   if (isLoading) {
     return <div className="text-center p-4">Loading services...</div>;
   }
 
   if (error) {
-    return <div className="text-center p-4 text-red-500">Error: {error.message}</div>;
+    return (
+      <div className="text-center p-4 text-red-500">Error: {error.message}</div>
+    );
   }
 
   return (
@@ -34,10 +36,18 @@ export function ServiceGrid() {
           <button
             key={category.categoryId}
             className="flex flex-col items-center p-2 focus:outline-none focus:ring-2 focus:ring-red-500 rounded-lg"
-            onClick={() => router.push(`/${category.categoryName.toLowerCase().replace(/\s+/g, '-')}`)}
+            onClick={() =>
+              router.push(
+                `/${category.categoryName.toLowerCase().replace(/\s+/g, '-')}`
+              )
+            }
           >
             <div className="bg-red-100 rounded-full p-3 mb-2 flex items-center justify-center w-12 h-12">
-              <img src={category.imageUrl} alt={category.categoryName} className="w-full h-full object-contain" />
+              <img
+                src={category.imageUrl}
+                alt={category.categoryName}
+                className="w-full h-full object-contain"
+              />
             </div>
             <span className="text-xs font-medium">{category.categoryName}</span>
           </button>

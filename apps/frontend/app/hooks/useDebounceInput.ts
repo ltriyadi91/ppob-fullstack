@@ -11,7 +11,6 @@ const useDebounceInput = ({ callback, delay = 3000 }: autoSaveType) => {
 
   useEffect(() => {
     const handleKeyPress = () => {
-      console.log('handleKeyPress');
       keyPressedRef.current = true;
     };
 
@@ -24,7 +23,6 @@ const useDebounceInput = ({ callback, delay = 3000 }: autoSaveType) => {
   }, []);
 
   const handleChangeForm = () => {
-    console.log('handleChangeForm');
     if (saveTimeout.current) {
       clearTimeout(saveTimeout.current);
       saveTimeout.current = null;
@@ -33,7 +31,6 @@ const useDebounceInput = ({ callback, delay = 3000 }: autoSaveType) => {
     //@ts-expect-error setTimeout return type is incompatible with useRef type
     saveTimeout.current = setTimeout(() => {
       if (keyPressedRef.current) {
-        console.log('handleChangeForm');
         callback();
         keyPressedRef.current = false;
       }

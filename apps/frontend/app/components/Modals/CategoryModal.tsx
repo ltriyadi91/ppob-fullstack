@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useForm } from '@mantine/form';
+import { useQuery } from '@tanstack/react-query';
 import {
   Modal,
   TextInput,
@@ -13,103 +14,90 @@ import {
   Loader,
   Alert,
 } from '@mantine/core';
+import { ApiResponse, CategoryDTO } from '@/dashboard/admin/categories/page';
 
 interface CategoryModalProps {
   opened: boolean;
   onClose: () => void;
-  categoryId?: string | number;
-  initialData?: CategoryApiResponse;
-  onSubmit: (values: CategoryFormValues) => void;
+  categoryId?: string | number | null | undefined;
+  onSubmit: (values: CategoryDTO) => void;
 }
 
-interface CategoryApiResponse {
-  categoryId?: string | number;
-  categoryName?: string;
-  slug?: string;
-  categoryDescription?: string;
-  imageUrl?: string;
-  isActive?: boolean;
-  isInputNumberRequired?: boolean;
-}
-
-type CategoryFormValues = CategoryApiResponse;
 
 export function CategoryModal({
   opened,
   onClose,
   categoryId,
-  initialData,
   onSubmit,
 }: CategoryModalProps) {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  console.log('initialData', initialData);
-
-  const form = useForm<CategoryFormValues>({
+  const form = useForm<CategoryDTO>({
+    mode: 'uncontrolled',
     initialValues: {
-      categoryName: initialData?.categoryName || '',
-      imageUrl: initialData?.imageUrl || '',
-      slug: initialData?.slug || '',
-      categoryDescription: initialData?.categoryDescription || '',
-      isActive: initialData?.isActive ?? true,
-      isInputNumberRequired: initialData?.isInputNumberRequired ?? false,
+      categoryId: null,
+      categoryName: '',
+      imageUrl: '',
+      slug: '',
+      categoryDescription: '',
+      isActive: false,
+      isInputNumberRequired: false,
     },
     validate: {
       categoryName: (value: string | undefined) => (!value?.trim() ? 'Name is required' : null),
       slug: (value: string | undefined) => (!value?.trim() ? 'Slug is required' : null),
     },
-    transformValues: (values: CategoryFormValues) => ({
+    transformValues: (values: CategoryDTO) => ({
       ...values,
       slug: values.slug ? values.slug.toLowerCase().replace(/[^a-z0-9]+/g, '-') : '',
     }),
   });
 
-  // Fetch category details when modal opens with a categoryId
+  // Fetch category details using React Query
+  const { data: categoryData, isLoading, error: queryError } = useQuery({
+    queryKey: ['category', categoryId],
+    queryFn: () => fetchCategoryById(categoryId),
+    enabled: !!categoryId && opened,
+  });
+
+  // Update form when data is fetched
   useEffect(() => {
-    if (opened && categoryId) {
-      fetchCategoryById(categoryId).then((data) => {
-        console.log('category data', data);
-        setTimeout(() => {
-          form.setValues({
-            categoryName: data.categoryName || '',
-            imageUrl: data.imageUrl || '',
-            slug: data.slug || '',
-            categoryDescription: data.categoryDescription || '',
-            isActive: data.isActive ?? true,
-            isInputNumberRequired: data.isInputNumberRequired ?? false,
-          });
-        }, 100);
-      });
-    }
-  }, [opened, categoryId]);
-
-
-  // Fetch category by ID from API
-  const fetchCategoryById = async (id: string | number): Promise<CategoryApiResponse> => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      const response = await fetch(`http://localhost:8080/api/v1/categories/${id}`);
-      
-      if (!response.ok) {
-        throw new Error(`Failed to fetch category: ${response.status}`);
+    if (categoryData && opened) {
+      const data = {
+        categoryId: categoryData.data.categoryId,
+        categoryName: categoryData.data.categoryName,
+        imageUrl: categoryData.data.imageUrl,
+        slug: categoryData.data.slug,
+        categoryDescription: categoryData.data.categoryDescription,
+        isActive: categoryData.data.isActive,
+        isInputNumberRequired: categoryData.data.isInputNumberRequired,
       }
-      
-      const data = await response.json();
-      
-      return data;
-    } catch (error) {
-      console.error('Error fetching category details:', error);
-      setError(error instanceof Error ? error.message : 'Unknown error occurred');
-      return {} as CategoryApiResponse;
-    } finally {
-      setLoading(false);
+      form.initialize(data);
+      form.setValues(data);
     }
+  }, [categoryData, opened]);
+
+
+  // Fetch category by ID from API - used by React Query
+  const fetchCategoryById = async (id?: string | number | null | undefined): Promise<ApiResponse<CategoryDTO>> => {
+    if (!id) {
+      return {} as ApiResponse<CategoryDTO>;
+    }
+    
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_V1}/categories/${id}`);
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch category: ${response.status}`);
+    }
+    
+    const apiResponse = await response.json();
+    
+    if (apiResponse.statusCode !== '00') {
+      throw new Error(apiResponse.statusDescription || 'Failed to fetch category');
+    }
+    
+    return apiResponse;
   };
 
-  const handleSubmit = (values: CategoryFormValues) => {
-    console.log('values', values);
+  const handleSubmit = (values: CategoryDTO) => {
     onSubmit(values);
     form.reset();
     onClose();
@@ -118,38 +106,34 @@ export function CategoryModal({
   return (
     <Modal
       opened={opened}
-      onClose={onClose}
+      onClose={() => {
+        form.reset();
+        onClose();
+      }}
       title={categoryId ? 'Edit Category' : 'Create Category'}
       size="md"
     >
       <form onSubmit={form.onSubmit(handleSubmit)}>
         <Stack gap="md">
-          {loading && (
+          {isLoading && (
             <Group justify="center" p="md">
               <Loader size="sm" />
             </Group>
           )}
           
-          {error && (
-            <Alert color="red" title="Error" withCloseButton onClose={() => setError(null)}>
-              {error}
+          {queryError && (
+            <Alert color="red" title="Error" withCloseButton>
+              {queryError instanceof Error ? queryError.message : 'Failed to load category'}
             </Alert>
           )}
           <TextInput
             label="Name"
             placeholder="Enter category name"
             required
+            key={form.key('categoryName')}
             {...form.getInputProps('categoryName')}
             onChange={(event) => {
               form.setFieldValue('categoryName', event.currentTarget.value);
-              if (!initialData) {
-                form.setFieldValue(
-                  'slug',
-                  event.currentTarget.value
-                    .toLowerCase()
-                    .replace(/[^a-z0-9]+/g, '-')
-                );
-              }
             }}
           />
 
@@ -157,6 +141,7 @@ export function CategoryModal({
             label="Slug"
             placeholder="enter-slug-here"
             required
+            key={form.key('slug')}
             {...form.getInputProps('slug')}
           />
 
@@ -166,6 +151,7 @@ export function CategoryModal({
             autosize
             minRows={3}
             maxRows={5}
+            key={form.key('categoryDescription')}
             {...form.getInputProps('categoryDescription')}
           />
 
@@ -173,6 +159,7 @@ export function CategoryModal({
             label="Image URL"
             placeholder="Enter image URL"
             required
+            key={form.key('imageUrl')}
             {...form.getInputProps('imageUrl')}
           />
 
@@ -180,11 +167,13 @@ export function CategoryModal({
             <Switch
               label="Active"
               description="Is this category active?"
+              key={form.key('isActive')}
               {...form.getInputProps('isActive', { type: 'checkbox' })}
             />
             <Switch
               label="Requires Input Number"
               description="Does this category require an input number?"
+              key={form.key('isInputNumberRequired')}
               {...form.getInputProps('isInputNumberRequired', {
                 type: 'checkbox',
               })}
@@ -195,7 +184,7 @@ export function CategoryModal({
             <Button variant="subtle" onClick={onClose}>
               Cancel
             </Button>
-            <Button type="submit">{initialData ? 'Update' : 'Create'}</Button>
+            <Button type="submit">Save</Button>
           </Group>
         </Stack>
       </form>
