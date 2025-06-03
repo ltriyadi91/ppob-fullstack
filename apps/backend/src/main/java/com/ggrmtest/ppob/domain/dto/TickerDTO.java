@@ -8,12 +8,14 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class TickerDTO {
 
+  private Long tickerId;
   private String message;
   private CategoryDTO category;
   private OperatorDTO operator;
 
   public static TickerDTO fromTicker(Ticker ticker) {
     return new TickerDTO()
+      .setTickerId(ticker.getId())
       .setMessage(ticker.getDescription())
       .setCategory(CategoryDTO.fromCategory(ticker.getCategory()))
       .setOperator(OperatorDTO.fromOperator(ticker.getOperator()));

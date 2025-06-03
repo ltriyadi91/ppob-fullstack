@@ -27,7 +27,7 @@ public class OrderItemDTO {
   }
 
   public OrderItem toOrderItem(OrderItem orderItem) {
-    return orderItem.setQuantity(quantity).setPrice(price);
+    return orderItem.setId(orderItemId).setQuantity(quantity).setPrice(price);
   }
 
   public static OrderItem fromCartItem(CartItem cartItem) {

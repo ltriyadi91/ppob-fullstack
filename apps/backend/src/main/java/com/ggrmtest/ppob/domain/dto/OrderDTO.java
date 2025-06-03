@@ -24,6 +24,6 @@ public class OrderDTO {
   }
 
   public Order toOrder(Order order) {
-    return order.setTotalAmount(totalAmount);
+    return order.setId(orderId).setTotalAmount(totalAmount);
   }
 }

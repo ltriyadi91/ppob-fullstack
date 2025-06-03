@@ -28,6 +28,13 @@ public class CategoryDTO {
   }
 
   public Category toCategory(Category category) {
-    return category.setCategoryName(categoryName).setImageUrl(imageUrl).setSlug(slug);
+    return category
+      .setId(categoryId)
+      .setIsActive(isActive)
+      .setIsInputNumberRequired(isInputNumberRequired)
+      .setCategoryDescription(categoryDescription)
+      .setCategoryName(categoryName)
+      .setImageUrl(imageUrl)
+      .setSlug(slug);
   }
 }

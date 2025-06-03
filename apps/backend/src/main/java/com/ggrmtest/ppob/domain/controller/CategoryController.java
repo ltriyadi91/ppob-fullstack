@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,6 +27,22 @@ public class CategoryController {
 
   private final CategoryQueryService categoryQueryService;
   private final CategoryService categoryService;
+  @GetMapping("/categories/paginated")
+  public ResponseEntity<GeneralResponseDTO<Page<CategoryDTO>>> searchCategories(
+      @RequestParam(required = false) String searchTerm,
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size,
+      @RequestParam(defaultValue = "categoryName") String sortBy,
+      @RequestParam(defaultValue = "asc") String sortDir
+  ) {
+    Sort.Direction direction = sortDir.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
+    PageRequest pageRequest = PageRequest.of(page, size, Sort.by(direction, sortBy));
+    
+    Page<CategoryDTO> categories = categoryQueryService.findAllPaginatedCategories(searchTerm, pageRequest);
+    
+    var resp = new GeneralResponseDTO<Page<CategoryDTO>>();
+    return resp.ok(categories);
+  }
   
   @GetMapping("/categories")
   public ResponseEntity<GeneralResponseDTO<List<CategoryDTO>>> searchCategories() {
@@ -46,7 +61,7 @@ public class CategoryController {
   }
 
   @PreAuthorize("hasAuthority('ADMIN')")
-  @PostMapping("/admin/categories")
+  @PostMapping("/categories")
   public ResponseEntity<GeneralResponseDTO<CategoryDTO>> saveCategory(@RequestBody CategoryDTO categoryDTO) {
     var categoryId = categoryDTO.getCategoryId();
 

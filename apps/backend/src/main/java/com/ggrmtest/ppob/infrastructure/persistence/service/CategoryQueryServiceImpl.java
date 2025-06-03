@@ -42,11 +42,8 @@ public class CategoryQueryServiceImpl implements CategoryQueryService {
 
   @Override
   public CategoryDTO findCategoryById(Long id) {
-    var category = categoryRepository.findById(id);
-    if (category == null) {
-      throw new ApiRequestException("Category not found", HttpStatus.NOT_FOUND);
-    }
-    return CategoryDTO.fromCategory(category.get());
+    var category = categoryRepository.findById(id).orElseThrow(() -> new ApiRequestException("Category not found", HttpStatus.NOT_FOUND));
+    return CategoryDTO.fromCategory(category);
   }
 
   @Override

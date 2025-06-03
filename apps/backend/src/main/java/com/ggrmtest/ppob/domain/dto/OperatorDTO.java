@@ -27,6 +27,7 @@ public class OperatorDTO {
 
   public Operator toOperator(Operator operator) {
     return operator
+      .setId(operatorId)
       .setOperatorName(operatorName)
       .setImageUrl(imageUrl)
       .setOperatorDescription(operatorDescription)
