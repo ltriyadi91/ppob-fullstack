@@ -4,5 +4,4 @@ import com.ggrmtest.ppob.domain.dto.OperatorDTO;
 
 public interface OperatorService {
   OperatorDTO saveOperator(OperatorDTO operatorDTO);
-  OperatorDTO addOperator(OperatorDTO operatorDTO);
 }

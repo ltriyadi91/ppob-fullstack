@@ -20,4 +20,5 @@
   <include file="/db/changelog/PPOB-CART-ITEM-08.xml"/>
   <include file="/db/changelog/PPOB-ORDER-09.xml"/>
   <include file="/db/changelog/PPOB-ORDER-ITEM-10.xml"/>
+  <include file="/db/changelog/PPOB-CATEGORY-ADD-COLUMN-10.xml"/>
 </databaseChangeLog>

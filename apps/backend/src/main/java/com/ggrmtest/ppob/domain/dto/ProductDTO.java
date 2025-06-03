@@ -21,6 +21,8 @@ public class ProductDTO {
   private Double discountPercentage;
   private Boolean isDiscount;
   private Boolean isAvailable;
+  private String categoryName;
+  private String operatorName;
 
   public static ProductDTO fromEntity(Product product) {
     return new ProductDTO()
@@ -35,20 +37,22 @@ public class ProductDTO {
       .setNewPriceLabel(product.getNewPriceLabel())
       .setDiscountPercentage(product.getDiscountPercentage())
       .setIsDiscount(product.getIsDiscount())
-      .setIsAvailable(product.getIsAvailable());
+      .setIsAvailable(product.getIsAvailable())
+      .setCategoryName(product.getCategory().getCategoryName())
+      .setOperatorName(product.getOperator().getOperatorName());
   }
 
   public Product toEntity(Product product) {
     return product
-      .setId(this.getId())
-      .setProductName(this.getProductName())
-      .setProductDescription(this.getProductDescription())
-      .setPriceNumeric(this.getPriceNumeric())
-      .setPriceLabel(this.getPriceLabel())
-      .setNewPriceNumeric(this.getNewPriceNumeric())
-      .setNewPriceLabel(this.getNewPriceLabel())
-      .setDiscountPercentage(this.getDiscountPercentage())
-      .setIsDiscount(this.getIsDiscount())
-      .setIsAvailable(this.getIsAvailable());
+      .setId(id)
+      .setProductName(productName)
+      .setProductDescription(productDescription)
+      .setPriceNumeric(priceNumeric)
+      .setPriceLabel(priceLabel)
+      .setNewPriceNumeric(newPriceNumeric)
+      .setNewPriceLabel(newPriceLabel)
+      .setDiscountPercentage(discountPercentage)
+      .setIsDiscount(isDiscount)
+      .setIsAvailable(isAvailable);
   }
 }

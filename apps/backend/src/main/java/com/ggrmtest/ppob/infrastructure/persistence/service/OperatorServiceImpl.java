@@ -4,6 +4,7 @@ import com.ggrmtest.ppob.domain.dto.OperatorDTO;
 import com.ggrmtest.ppob.infrastructure.persistence.entity.Operator;
 import com.ggrmtest.ppob.infrastructure.persistence.exception.ApiRequestException;
 import com.ggrmtest.ppob.infrastructure.persistence.repository.OperatorRepository;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -15,29 +16,18 @@ public class OperatorServiceImpl implements OperatorService {
   private final OperatorRepository operatorRepository;
 
   @Override
-  public OperatorDTO addOperator(OperatorDTO operatorDTO) {
-    operatorRepository
-      .findByOperatorName(operatorDTO.getOperatorName())
-      .ifPresent(operator -> {
-        throw new ApiRequestException(
-          "Operator already exists",
-          HttpStatus.NOT_ACCEPTABLE
-        );
-      });
-
-    operatorRepository.save(operatorDTO.toOperator(new Operator()));
-    return operatorDTO;
-  }
-
-  @Override
   public OperatorDTO saveOperator(OperatorDTO operatorDTO) {
-    var operator = operatorRepository
-      .findById(operatorDTO.getOperatorId())
-      .orElseThrow(() ->
-        new ApiRequestException("Operator not found", HttpStatus.NOT_FOUND)
-      );
+    var operator = new Operator();
+    if (Objects.nonNull(operatorDTO.getOperatorId())) {
+      operator =
+        operatorRepository
+          .findById(operatorDTO.getOperatorId())
+          .orElseThrow(() ->
+            new ApiRequestException("Operator not found", HttpStatus.NOT_FOUND)
+          );
+    }
 
-    operatorRepository.save(operatorDTO.toOperator(operator));
-    return operatorDTO;
+    var savedOperator = operatorRepository.save(operatorDTO.toOperator(operator));
+    return operatorDTO.setOperatorId(savedOperator.getId());
   }
 }

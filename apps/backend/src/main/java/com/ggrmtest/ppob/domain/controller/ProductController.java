@@ -29,6 +29,8 @@ public class ProductController {
   @GetMapping("/paginated")
   public ResponseEntity<GeneralResponseDTO<Page<ProductDTO>>> searchProducts(
     @RequestParam(required = false) String searchTerm,
+    @RequestParam(required = false) Long categoryId,
+    @RequestParam(required = false) Long operatorId,
     @RequestParam(defaultValue = "0") int page,
     @RequestParam(defaultValue = "10") int size,
     @RequestParam(defaultValue = "productName") String sortBy,
@@ -41,6 +43,8 @@ public class ProductController {
 
     Page<ProductDTO> products = productQueryService.findAllPaginatedProducts(
       searchTerm,
+      categoryId,
+      operatorId,
       pageRequest
     );
     var resp = new GeneralResponseDTO<Page<ProductDTO>>();

@@ -13,6 +13,7 @@ public class CategoryDTO {
   private String categoryDescription;
   private Boolean isActive;
   private Boolean isInputNumberRequired;
+  private Boolean isPrefixNumberRequired;
   private String slug;
   private String imageUrl;
 
@@ -24,7 +25,8 @@ public class CategoryDTO {
       .setSlug(category.getSlug())
       .setCategoryId(category.getId())
       .setCategoryName(category.getCategoryName())
-      .setImageUrl(category.getImageUrl());
+      .setImageUrl(category.getImageUrl())
+      .setIsPrefixNumberRequired(category.getIsPrefixNumberRequired());
   }
 
   public Category toCategory(Category category) {
@@ -32,6 +34,7 @@ public class CategoryDTO {
       .setId(categoryId)
       .setIsActive(isActive)
       .setIsInputNumberRequired(isInputNumberRequired)
+      .setIsPrefixNumberRequired(isPrefixNumberRequired)
       .setCategoryDescription(categoryDescription)
       .setCategoryName(categoryName)
       .setImageUrl(imageUrl)

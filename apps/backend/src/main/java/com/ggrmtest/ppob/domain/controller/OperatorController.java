@@ -74,11 +74,7 @@ public class OperatorController {
   public ResponseEntity<GeneralResponseDTO<OperatorDTO>> saveOperator(
     @RequestBody OperatorDTO operatorDTO
   ) {
-    var operatorId = operatorDTO.getOperatorId();
-
-    OperatorDTO operator = Objects.nonNull(operatorId)
-      ? operatorService.saveOperator(operatorDTO)
-      : operatorService.addOperator(operatorDTO);
+    OperatorDTO operator = operatorService.saveOperator(operatorDTO);
 
     var resp = new GeneralResponseDTO<OperatorDTO>();
     return resp.ok(operator);

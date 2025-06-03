@@ -23,23 +23,46 @@ public class ProductQueryServiceImpl implements ProductQueryService {
   private final ProductRepository productRepository;
 
   @Override
-  public Page<ProductDTO> findAllPaginatedProducts(String searchTerm, Pageable pageable) {
+  public Page<ProductDTO> findAllPaginatedProducts(
+    String searchTerm,
+    Long categoryId,
+    Long operatorId,
+    Pageable pageable
+  ) {
     // Get all products first
-    List<Product> allProducts = productRepository.findAll();
+    List<Product> allProducts = productRepository.findAllByOrderByCategoryIdAscOperatorIdAsc();
+
+    // Apply filters
+    List<Product> filteredProducts = allProducts;
 
     // Filter by search term if provided
-    List<Product> filteredProducts;
     if (StringUtils.hasText(searchTerm)) {
       String searchTermLower = searchTerm.toLowerCase();
       filteredProducts =
-        allProducts
+        filteredProducts
           .stream()
           .filter(product ->
             product.getProductName().toLowerCase().contains(searchTermLower)
           )
           .collect(Collectors.toList());
-    } else {
-      filteredProducts = allProducts;
+    }
+
+    // Filter by category if provided
+    if (categoryId != null) {
+      filteredProducts =
+        filteredProducts
+          .stream()
+          .filter(product -> product.getCategory().getId().equals(categoryId))
+          .collect(Collectors.toList());
+    }
+
+    // Filter by operator if provided
+    if (operatorId != null) {
+      filteredProducts =
+        filteredProducts
+          .stream()
+          .filter(product -> product.getOperator().getId().equals(operatorId))
+          .collect(Collectors.toList());
     }
 
     // Apply pagination manually

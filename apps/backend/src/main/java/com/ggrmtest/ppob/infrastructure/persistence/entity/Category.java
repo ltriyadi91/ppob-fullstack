@@ -34,4 +34,5 @@ public class Category {
 
   private Boolean isActive;
   private Boolean isInputNumberRequired;
+  private Boolean isPrefixNumberRequired;
 }
