@@ -23,6 +23,15 @@ interface CategoryModalProps {
   onSubmit: (values: CategoryDTO) => void;
 }
 
+const initialData: CategoryDTO = {
+  categoryId: null,
+  categoryName: '',
+  imageUrl: '',
+  slug: '',
+  categoryDescription: '',
+  isActive: false,
+  isInputNumberRequired: false,
+};
 
 export function CategoryModal({
   opened,
@@ -31,15 +40,9 @@ export function CategoryModal({
   onSubmit,
 }: CategoryModalProps) {
   const form = useForm<CategoryDTO>({
-    mode: 'uncontrolled',
     initialValues: {
-      categoryId: null,
-      categoryName: '',
-      imageUrl: '',
-      slug: '',
-      categoryDescription: '',
-      isActive: false,
-      isInputNumberRequired: false,
+      ...initialData,
+      categoryId
     },
     validate: {
       categoryName: (value: string | undefined) => (!value?.trim() ? 'Name is required' : null),
@@ -53,7 +56,7 @@ export function CategoryModal({
 
   // Fetch category details using React Query
   const { data: categoryData, isLoading, error: queryError } = useQuery({
-    queryKey: ['category', categoryId],
+    queryKey: ['category', categoryId, opened],
     queryFn: () => fetchCategoryById(categoryId),
     enabled: !!categoryId && opened,
   });
@@ -70,7 +73,6 @@ export function CategoryModal({
         isActive: categoryData.data.isActive,
         isInputNumberRequired: categoryData.data.isInputNumberRequired,
       }
-      form.initialize(data);
       form.setValues(data);
     }
   }, [categoryData, opened]);
@@ -97,19 +99,25 @@ export function CategoryModal({
     return apiResponse;
   };
 
+  const handleResetForm = () => {
+    form.setValues(initialData);
+  }
+
   const handleSubmit = (values: CategoryDTO) => {
     onSubmit(values);
-    form.reset();
+    handleResetForm();
     onClose();
   };
+
+  const handleClose = () => {
+    handleResetForm();
+    onClose();
+  }
 
   return (
     <Modal
       opened={opened}
-      onClose={() => {
-        form.reset();
-        onClose();
-      }}
+      onClose={handleClose}
       title={categoryId ? 'Edit Category' : 'Create Category'}
       size="md"
     >
@@ -130,7 +138,6 @@ export function CategoryModal({
             label="Name"
             placeholder="Enter category name"
             required
-            key={form.key('categoryName')}
             {...form.getInputProps('categoryName')}
             onChange={(event) => {
               form.setFieldValue('categoryName', event.currentTarget.value);
@@ -141,7 +148,6 @@ export function CategoryModal({
             label="Slug"
             placeholder="enter-slug-here"
             required
-            key={form.key('slug')}
             {...form.getInputProps('slug')}
           />
 
@@ -151,7 +157,6 @@ export function CategoryModal({
             autosize
             minRows={3}
             maxRows={5}
-            key={form.key('categoryDescription')}
             {...form.getInputProps('categoryDescription')}
           />
 
@@ -159,7 +164,6 @@ export function CategoryModal({
             label="Image URL"
             placeholder="Enter image URL"
             required
-            key={form.key('imageUrl')}
             {...form.getInputProps('imageUrl')}
           />
 
@@ -167,13 +171,11 @@ export function CategoryModal({
             <Switch
               label="Active"
               description="Is this category active?"
-              key={form.key('isActive')}
               {...form.getInputProps('isActive', { type: 'checkbox' })}
             />
             <Switch
               label="Requires Input Number"
               description="Does this category require an input number?"
-              key={form.key('isInputNumberRequired')}
               {...form.getInputProps('isInputNumberRequired', {
                 type: 'checkbox',
               })}

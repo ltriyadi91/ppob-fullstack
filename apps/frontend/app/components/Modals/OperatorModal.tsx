@@ -1,76 +1,150 @@
-"use client";
+'use client';
 
+import { useEffect } from 'react';
 import { useForm } from '@mantine/form';
+import { useQuery } from '@tanstack/react-query';
 import {
   Modal,
   TextInput,
   Stack,
   Button,
   Group,
-  Select,
+  Loader,
+  Alert,
+  Switch,
 } from '@mantine/core';
+
+import { ApiResponse, OperatorDTO } from '@/dashboard/admin/operators/page';
 
 interface OperatorModalProps {
   opened: boolean;
   onClose: () => void;
-  initialData?: {
-    operatorId?: number;
-    operatorName: string;
-    operatorDescription: string;
-    isActive: boolean;
-    slug: string;
-    imageUrl: string;
-  };
-  onSubmit: (values: OperatorFormValues) => void;
+  operatorId?: number | null;
+  onSubmit: (values: OperatorDTO) => void;
 }
 
-interface OperatorFormValues {
-  operatorId?: number;
-  operatorName: string;
-  operatorDescription: string;
-  isActive: boolean;
-  slug: string;
-  imageUrl: string;
+const initialData: OperatorDTO = {
+  operatorId: undefined,
+  operatorName: '',
+  operatorDescription: '',
+  isActive: true,
+  slug: '',
+  imageUrl: '',
 }
 
-export function OperatorModal({ 
-  opened, 
-  onClose, 
-  initialData,
+export function OperatorModal({
+  opened,
+  onClose,
+  operatorId,
   onSubmit,
 }: OperatorModalProps) {
-  const form = useForm<OperatorFormValues>({
+  const form = useForm<OperatorDTO>({
     initialValues: {
-      operatorId: initialData?.operatorId,
-      operatorName: initialData?.operatorName || '',
-      operatorDescription: initialData?.operatorDescription || '',
-      isActive: initialData?.isActive ?? true,
-      slug: initialData?.slug || '',
-      imageUrl: initialData?.imageUrl || '',
+      ...initialData,
+      operatorId,
     },
     validate: {
-      operatorName: (value: string) => !value.trim() ? 'Operator name is required' : null,
-      operatorDescription: (value: string) => !value.trim() ? 'Description is required' : null,
-      slug: (value: string) => !value.trim() ? 'Slug is required' : null,
-      imageUrl: (value: string) => !value.trim() ? 'Image URL is required' : null,
+      operatorName: (value: string) =>
+        !value.trim() ? 'Operator name is required' : null,
+      operatorDescription: (value: string) =>
+        !value.trim() ? 'Description is required' : null,
+      slug: (value: string) => (!value.trim() ? 'Slug is required' : null),
+      imageUrl: (value: string) =>
+        !value.trim() ? 'Image URL is required' : null,
     },
   });
 
-  const handleSubmit = (values: OperatorFormValues) => {
+  // Fetch operator details using React Query
+  const {
+    data: operatorData,
+    isLoading,
+    error: queryError,
+  } = useQuery({
+    queryKey: ['operator', operatorId],
+    queryFn: () => fetchOperatorById(operatorId),
+    enabled: !!operatorId && opened,
+  });
+
+  // Update form when data is fetched
+  useEffect(() => {
+    if (operatorData && opened) {
+      const data = {
+        operatorId: operatorData.data.operatorId,
+        operatorName: operatorData.data.operatorName,
+        operatorDescription: operatorData.data.operatorDescription,
+        isActive: operatorData.data.isActive,
+        slug: operatorData.data.slug,
+        imageUrl: operatorData.data.imageUrl,
+      };
+      form.initialize(data);
+      form.setValues(data);
+    }
+  }, [operatorData, opened]);
+
+  // Fetch operator by ID from API - used by React Query
+  const fetchOperatorById = async (
+    id?: number | null
+  ): Promise<ApiResponse<OperatorDTO>> => {
+    if (!id) {
+      return {} as ApiResponse<OperatorDTO>;
+    }
+
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_V1}/operators/${id}`
+    );
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch operator: ${response.status}`);
+    }
+
+    const apiResponse = await response.json();
+
+    if (apiResponse.statusCode !== '00') {
+      throw new Error(
+        apiResponse.statusDescription || 'Failed to fetch operator'
+      );
+    }
+
+    return apiResponse;
+  };
+
+  const handleResetForm = () => {
+    form.setValues(initialData);
+  }
+
+  const handleSubmit = (values: OperatorDTO) => {
     onSubmit(values);
-    form.reset();
+    handleResetForm();
     onClose();
   };
+
+  const handleClose = () => {
+    handleResetForm();
+    onClose();
+  }
 
   return (
     <Modal
       opened={opened}
-      onClose={onClose}
-      title={initialData ? 'Edit Operator' : 'Create Operator'}
+      onClose={handleClose}
+      title={operatorId ? 'Edit Operator' : 'Create Operator'}
       size="md"
     >
       <form onSubmit={form.onSubmit(handleSubmit)}>
-        <Stack>
+        <Stack gap="md">
+          {isLoading && (
+            <Group justify="center" p="md">
+              <Loader size="sm" />
+            </Group>
+          )}
+
+          {queryError && (
+            <Alert color="red" title="Error" withCloseButton>
+              {queryError instanceof Error
+                ? queryError.message
+                : 'Failed to load operator'}
+            </Alert>
+          )}
           <TextInput
             label="Operator Name"
             placeholder="Enter operator name"
@@ -95,19 +169,16 @@ export function OperatorModal({
             required
             {...form.getInputProps('imageUrl')}
           />
-          <Select
-            label="Status"
-            required
-            data={[
-              { value: 'true', label: 'Active' },
-              { value: 'false', label: 'Inactive' },
-            ]}
-            value={form.values.isActive ? 'true' : 'false'}
-            onChange={(value) => form.setFieldValue('isActive', value === 'true')}
+          <Switch
+            label="Active"
+            description="Is this operator active?"
+            {...form.getInputProps('isActive', { type: 'checkbox' })}
           />
           <Group justify="flex-end" mt="md">
-            <Button variant="subtle" onClick={onClose}>Cancel</Button>
-            <Button type="submit">{initialData ? 'Update' : 'Create'}</Button>
+            <Button variant="subtle" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button type="submit">{operatorId ? 'Update' : 'Create'}</Button>
           </Group>
         </Stack>
       </form>

@@ -1,12 +1,10 @@
-"use client";
+'use client';
 
 import { useState } from 'react';
 import { OperatorModal } from '@/components/Modals/OperatorModal';
 import {
-  Table,
   Group,
   Button,
-  Text,
   Paper,
   Title,
   Menu,
@@ -14,22 +12,24 @@ import {
   rem,
   TextInput,
   Stack,
-  Pagination,
-  Select,
   Badge,
+  Alert,
+  Image,
 } from '@mantine/core';
-import { 
-  IconDots, 
-  IconPencil, 
-  IconTrash, 
+import { DataTable, DataTableColumn } from 'mantine-datatable';
+import {
+  IconDots,
+  IconTrash,
   IconPlus,
   IconSearch,
-  IconSortAscending,
-  IconSortDescending,
+  IconEdit,
 } from '@tabler/icons-react';
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { useAuth } from '@/hooks/useAuth';
+import useDebounceInput from '@/hooks/useDebounceInput';
 
-interface OperatorDTO {
-  operatorId: number;
+export interface OperatorDTO {
+  operatorId: number | null | undefined;
   operatorName: string;
   operatorDescription: string;
   isActive: boolean;
@@ -37,223 +37,327 @@ interface OperatorDTO {
   imageUrl: string;
 }
 
-// Mock data
-const mockOperators: OperatorDTO[] = [
-  {
-    operatorId: 1,
-    operatorName: 'Telkomsel',
-    operatorDescription: 'Telkomsel mobile operator',
-    isActive: true,
-    slug: 'telkomsel',
-    imageUrl: 'https://via.placeholder.com/40x40?text=TSEL',
-  },
-  {
-    operatorId: 2,
-    operatorName: 'Indosat',
-    operatorDescription: 'Indosat Ooredoo mobile operator',
-    isActive: true,
-    slug: 'indosat',
-    imageUrl: 'https://via.placeholder.com/40x40?text=ISAT',
-  },
-  {
-    operatorId: 3,
-    operatorName: 'XL Axiata',
-    operatorDescription: 'XL Axiata mobile operator',
-    isActive: false,
-    slug: 'xl-axiata',
-    imageUrl: 'https://via.placeholder.com/40x40?text=XL',
-  },
-  {
-    operatorId: 4,
-    operatorName: 'Smartfren',
-    operatorDescription: 'Smartfren mobile operator',
-    isActive: true,
-    slug: 'smartfren',
-    imageUrl: 'https://via.placeholder.com/40x40?text=SF',
-  },
-  {
-    operatorId: 5,
-    operatorName: 'Tri',
-    operatorDescription: 'Tri mobile operator',
-    isActive: false,
-    slug: 'tri',
-    imageUrl: 'https://via.placeholder.com/40x40?text=3',
-  },
-];
+export interface ApiResponse<T> {
+  timestamp: string;
+  statusCode: string;
+  statusDescription: string;
+  statusTitle: string;
+  data: T;
+}
+
+interface PaginatedResponse<T> {
+  content: T[];
+  pageable: {
+    pageNumber: number;
+    pageSize: number;
+    sort: {
+      sorted: boolean;
+      unsorted: boolean;
+      empty: boolean;
+    };
+    offset: number;
+    paged: boolean;
+    unpaged: boolean;
+  };
+  last: boolean;
+  totalPages: number;
+  totalElements: number;
+  first: boolean;
+  numberOfElements: number;
+  size: number;
+  number: number;
+  sort: {
+    sorted: boolean;
+    unsorted: boolean;
+    empty: boolean;
+  };
+  empty: boolean;
+}
 
 export default function OperatorsPage() {
+  // UI state
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortBy, setSortBy] = useState<string | null>('name');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState('10');
+  const [pageSize, setPageSize] = useState(10);
   const [modalOpened, setModalOpened] = useState(false);
-  const [editingOperator, setEditingOperator] = useState<OperatorDTO | null>(null);
+  const [editingOperator, setEditingOperator] = useState<OperatorDTO | null>(
+    null
+  );
 
-  const handleSort = (field: string) => {
-    if (sortBy === field) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortBy(field);
-      setSortOrder('asc');
+  const { token } = useAuth({
+    isDashboard: true,
+  });
+
+  // React Query for fetching operators with pagination
+  const {
+    data: operatorsData,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ['operators', page, pageSize, searchTerm],
+    queryFn: async (): Promise<ApiResponse<PaginatedResponse<OperatorDTO>>> => {
+      // Build the query parameters for the API request
+      const params = new URLSearchParams();
+      if (searchTerm) params.append('searchTerm', searchTerm);
+
+      // API uses 0-based indexing
+      params.append('page', (page - 1).toString());
+      params.append('size', pageSize.toString());
+      params.append('sortBy', 'operatorName');
+      params.append('sortDir', 'asc');
+
+      const response = await fetch(
+        `${
+          process.env.NEXT_PUBLIC_API_V1
+        }/operators/paginated?${params.toString()}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) throw new Error('Failed to fetch operators');
+
+      const apiResponse = await response.json();
+
+      if (apiResponse.statusCode !== '00') {
+        throw new Error(
+          apiResponse.statusDescription || 'Failed to fetch operators'
+        );
+      }
+
+      return apiResponse;
+    },
+  });
+
+  const { handleChangeForm } = useDebounceInput({
+    callback: () => {
+      setPage(1);
+      refetch();
+    },
+    delay: 1000,
+  });
+
+  // Define columns for the DataTable
+  const columns: DataTableColumn<OperatorDTO>[] = [
+    {
+      accessor: 'imageUrl',
+      title: 'Image',
+      render: (operator: OperatorDTO) => (
+        <Image
+          src={operator.imageUrl}
+          alt={operator.operatorName}
+          width={40}
+          height={40}
+          radius="sm"
+          fit="contain"
+        />
+      ),
+      width: 80,
+    },
+    {
+      accessor: 'operatorName',
+      title: 'Name',
+      sortable: true,
+    },
+    {
+      accessor: 'operatorDescription',
+      title: 'Description',
+      ellipsis: true,
+    },
+    {
+      accessor: 'slug',
+      title: 'Slug',
+    },
+    {
+      accessor: 'isActive',
+      title: 'Status',
+      render: (operator: OperatorDTO) => (
+        <Badge color={operator.isActive ? 'green' : 'red'}>
+          {operator.isActive ? 'Active' : 'Inactive'}
+        </Badge>
+      ),
+      width: 100,
+    },
+    {
+      accessor: 'actions',
+      title: 'Actions',
+      render: (operator) => (
+        <Group gap="xs">
+          <ActionIcon
+            variant="filled"
+            color="blue"
+            onClick={() => {
+              setEditingOperator(operator);
+              setModalOpened(true);
+            }}
+          >
+            <IconEdit size={16} />
+          </ActionIcon>
+          <Menu shadow="md" width={200} position="bottom-end">
+            <Menu.Target>
+              <ActionIcon variant="subtle" color="gray" size="sm">
+                <IconDots style={{ width: rem(16) }} stroke={1.5} />
+              </ActionIcon>
+            </Menu.Target>
+            <Menu.Dropdown>
+              <Menu.Item
+                leftSection={<IconTrash size={14} />}
+                color="red"
+                onClick={() => handleDelete(operator.operatorId as number)}
+              >
+                Delete
+              </Menu.Item>
+            </Menu.Dropdown>
+          </Menu>
+        </Group>
+      ),
+      width: 100,
+      textAlign: 'center',
+    },
+  ];
+
+  // Handle search
+  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.currentTarget.value;
+    setSearchTerm(value);
+    handleChangeForm();
+  };
+
+  // Mutation for creating/updating operators
+  const operatorMutation = useMutation({
+    mutationFn: async (values: OperatorDTO) => {
+      const apiUrl = `${process.env.NEXT_PUBLIC_API_V1}/operators`;
+
+      // Prepare request body according to the API requirements
+      const requestBody: OperatorDTO = {
+        operatorId: values.operatorId,
+        operatorName: values.operatorName,
+        operatorDescription: values.operatorDescription,
+        slug: values.slug,
+        imageUrl: values.imageUrl,
+        isActive: values.isActive,
+      };
+
+      // Add operator ID if we're updating
+      if (editingOperator) {
+        requestBody.operatorId = editingOperator.operatorId;
+      }
+
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          `Failed to ${editingOperator ? 'update' : 'create'} operator: ${
+            response.status
+          }`
+        );
+      }
+
+      const apiResponse = await response.json();
+
+      return apiResponse.data;
+    },
+    onSuccess: () => {
+      // Close modal and refresh data
+      setModalOpened(false);
+      refetch();
+    },
+    onError: (error) => {
+      console.error('Error saving operator:', error);
+    },
+  });
+
+  // Handle form submission
+  const handleSubmit = (values: OperatorDTO) => {
+    operatorMutation.mutate(values);
+  };
+
+  // Handle delete
+  const handleDelete = (operatorId: number) => {
+    if (confirm('Are you sure you want to delete this operator?')) {
+      // Implement delete mutation similar to categories page
+      // For now, just log and refresh
+      console.log('Deleting operator:', operatorId);
+      // In a real implementation, you would call a delete API endpoint
+      // and then refetch the data
+      refetch();
     }
   };
 
-  const SortIcon = ({ field }: { field: string }) => {
-    if (sortBy !== field) return null;
-    return sortOrder === 'asc' ? (
-      <IconSortAscending size={16} />
-    ) : (
-      <IconSortDescending size={16} />
-    );
-  };
-
-  const getRoleBadgeColor = (role: string) => {
-    return role === 'admin' ? 'blue' : 'gray';
-  };
-
   return (
-    <Stack gap="lg">
-      <Group justify="space-between" align="center">
-        <Title order={2}>Operators</Title>
-        <Button 
-          leftSection={<IconPlus size={16} />}
-          onClick={() => {
-            setEditingOperator(null);
-            setModalOpened(true);
-          }}
-        >
-          Add Operator
-        </Button>
-      </Group>
+    <>
+      <Stack gap="lg">
+        <Paper shadow="xs" p="md">
+          <Stack gap="md">
+            <Group justify="space-between">
+              <Title order={2}>Operators</Title>
+              <Button
+                leftSection={<IconPlus size={16} />}
+                onClick={() => {
+                  setEditingOperator(null);
+                  setModalOpened(true);
+                }}
+              >
+                Add Operator
+              </Button>
+            </Group>
 
-      <Paper p="md" withBorder>
-        <Stack gap="md">
-          <Group>
             <TextInput
               placeholder="Search operators..."
               leftSection={<IconSearch size={16} />}
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.currentTarget.value)}
-              style={{ flexGrow: 1 }}
+              onChange={handleSearch}
             />
-          </Group>
 
-          <Table highlightOnHover>
-            <Table.Thead>
-              <Table.Tr>
-                <Table.Th>Logo</Table.Th>
-                <Table.Th
-                  onClick={() => handleSort('operatorName')}
-                  style={{ cursor: 'pointer' }}
-                >
-                  <Group gap={4}>
-                    Name
-                    <SortIcon field="operatorName" />
-                  </Group>
-                </Table.Th>
-                <Table.Th>Description</Table.Th>
-                <Table.Th>Slug</Table.Th>
-                <Table.Th>Status</Table.Th>
-                <Table.Th>Actions</Table.Th>
-              </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>
-              {mockOperators.map((operator) => (
-                <Table.Tr key={operator.operatorId}>
-                  <Table.Td>
-                    <img src={operator.imageUrl} alt={operator.operatorName} style={{ width: 40, height: 40, objectFit: 'cover', borderRadius: 8 }} />
-                  </Table.Td>
-                  <Table.Td>
-                    <Text fw={500}>{operator.operatorName}</Text>
-                  </Table.Td>
-                  <Table.Td>{operator.operatorDescription}</Table.Td>
-                  <Table.Td>{operator.slug}</Table.Td>
-                  <Table.Td>
-                    <Badge color={operator.isActive ? 'green' : 'red'} variant={operator.isActive ? 'light' : 'outline'}>
-                      {operator.isActive ? 'Active' : 'Inactive'}
-                    </Badge>
-                  </Table.Td>
-                  <Table.Td>
-                    <Group gap={0} justify="flex-end">
-                      <ActionIcon
-                        variant="subtle"
-                        color="blue"
-                        size="sm"
-                        onClick={() => {
-                          setEditingOperator(operator);
-                          setModalOpened(true);
-                        }}
-                      >
-                        <IconPencil style={{ width: rem(16) }} stroke={1.5} />
-                      </ActionIcon>
-                      <Menu shadow="md" width={200} position="bottom-end">
-                        <Menu.Target>
-                          <ActionIcon
-                            variant="subtle"
-                            color="gray"
-                            size="sm"
-                          >
-                            <IconDots style={{ width: rem(16) }} stroke={1.5} />
-                          </ActionIcon>
-                        </Menu.Target>
-                        <Menu.Dropdown>
-                          <Menu.Item
-                            leftSection={<IconTrash size={14} />}
-                            color="red"
-                          >
-                            Delete
-                          </Menu.Item>
-                        </Menu.Dropdown>
-                      </Menu>
-                    </Group>
-                  </Table.Td>
-                </Table.Tr>
-              ))}
-            </Table.Tbody>
-          </Table>
+            {isError && (
+              <Alert title="Error" color="red">
+                {(error as Error)?.message ||
+                  'An error occurred while fetching data'}
+              </Alert>
+            )}
 
-          <Group justify="space-between">
-            <Select
-              value={perPage}
-              onChange={(value) => setPerPage(value || '10')}
-              data={[
-                { value: '5', label: '5 per page' },
-                { value: '10', label: '10 per page' },
-                { value: '25', label: '25 per page' },
-                { value: '50', label: '50 per page' },
-              ]}
-              style={{ width: 130 }}
+            <DataTable
+              withTableBorder
+              borderRadius="sm"
+              striped
+              highlightOnHover
+              records={operatorsData?.data?.content || []}
+              columns={columns}
+              totalRecords={operatorsData?.data?.totalElements || 0}
+              recordsPerPage={pageSize}
+              page={page}
+              onPageChange={setPage}
+              onRecordsPerPageChange={setPageSize}
+              recordsPerPageOptions={[10, 25, 50]}
+              paginationText={({ from, to, totalRecords }) =>
+                `${from}-${to} of ${totalRecords}`
+              }
+              fetching={isLoading}
             />
-            <Pagination
-              value={page}
-              onChange={setPage}
-              total={10}
-              size="sm"
-            />
-          </Group>
-        </Stack>
-      </Paper>
+          </Stack>
+        </Paper>
+      </Stack>
 
-      {/* Operator Modal */}
       <OperatorModal
         opened={modalOpened}
         onClose={() => {
           setModalOpened(false);
           setEditingOperator(null);
         }}
-        initialData={editingOperator || undefined}
-        onSubmit={(values) => {
-          // Handle form submission
-          console.log('Form values:', values);
-          if (editingOperator) {
-            // Update existing operator
-          } else {
-            // Create new operator
-            console.log('Creating new operator:', values);
-          }
-        }}
+        operatorId={editingOperator?.operatorId || null}
+        onSubmit={handleSubmit}
       />
-    </Stack>
+    </>
   );
 }

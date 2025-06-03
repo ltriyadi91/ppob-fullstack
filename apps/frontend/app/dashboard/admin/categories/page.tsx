@@ -122,7 +122,7 @@ export default function CategoriesPage() {
       setPage(1);
       refetch();
     },
-    delay: 500,
+    delay: 1000,
   });
 
   // Define columns for the DataTable
@@ -150,6 +150,10 @@ export default function CategoriesPage() {
     {
       accessor: 'slug',
       title: 'Slug',
+    },
+    {
+      accessor: 'categoryDescription',
+      title: 'Description',
     },
     {
       accessor: 'isActive',
@@ -299,6 +303,7 @@ export default function CategoriesPage() {
               borderRadius="sm"
               striped
               highlightOnHover
+              minHeight={180}
               columns={columns}
               records={categoriesData?.data.content || []}
               totalRecords={categoriesData?.data.totalElements || 0}
@@ -307,9 +312,9 @@ export default function CategoriesPage() {
               onPageChange={setPage}
               onRecordsPerPageChange={setPageSize}
               paginationText={({ from, to, totalRecords }) => `${from}-${to} of ${totalRecords}`}
-              noRecordsText="No categories found"
               fetching={isLoading}
               recordsPerPageOptions={[10, 25, 50]}
+              noRecordsText="No categories found"
             />
           </Stack>
         </Paper>
