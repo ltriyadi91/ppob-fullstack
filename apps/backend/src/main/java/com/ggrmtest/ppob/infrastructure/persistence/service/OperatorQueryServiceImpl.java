@@ -1,8 +1,6 @@
 package com.ggrmtest.ppob.infrastructure.persistence.service;
 
-import com.ggrmtest.ppob.domain.dto.CategoryDTO;
 import com.ggrmtest.ppob.domain.dto.OperatorDTO;
-import com.ggrmtest.ppob.infrastructure.persistence.entity.Category;
 import com.ggrmtest.ppob.infrastructure.persistence.entity.Operator;
 import com.ggrmtest.ppob.infrastructure.persistence.exception.ApiRequestException;
 import com.ggrmtest.ppob.infrastructure.persistence.repository.OperatorRepository;

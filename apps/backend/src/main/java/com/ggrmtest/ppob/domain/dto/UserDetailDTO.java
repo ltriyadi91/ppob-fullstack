@@ -2,6 +2,7 @@ package com.ggrmtest.ppob.domain.dto;
 
 import com.ggrmtest.ppob.common.enumeration.Role;
 import com.ggrmtest.ppob.infrastructure.persistence.entity.User;
+import java.math.BigInteger;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -14,6 +15,7 @@ public class UserDetailDTO {
   private String firstName;
   private String lastName;
   private Role role;
+  private long expiry;
 
   public static UserDetailDTO fromUser(User user) {
     return new UserDetailDTO()

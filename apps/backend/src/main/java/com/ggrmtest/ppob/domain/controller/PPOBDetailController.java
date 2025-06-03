@@ -4,7 +4,6 @@ import com.ggrmtest.ppob.common.dto.GeneralResponseDTO;
 import com.ggrmtest.ppob.domain.dto.PPOBDetailDTO;
 import com.ggrmtest.ppob.infrastructure.persistence.service.PPOBDetailQueryService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

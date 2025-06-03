@@ -11,7 +11,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -49,7 +48,10 @@ public class User implements UserDetails {
 
   @NotNull(message = "Please enter username")
   @Column(unique = true)
-  @Pattern(regexp = "^[A-Za-z][A-Za-z0-9_]{7,29}$", message = "Enter valid characters in username")
+  @Pattern(
+    regexp = "^[A-Za-z][A-Za-z0-9_]{7,29}$",
+    message = "Enter valid characters in username"
+  )
   private String username;
 
   @NotNull(message = "Please enter the password")

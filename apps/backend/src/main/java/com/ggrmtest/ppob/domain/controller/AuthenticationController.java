@@ -62,6 +62,8 @@ public class AuthenticationController {
       .getAuthentication();
     String username = authentication.getName();
     var user = authenticationService.findByUserName(username);
-    return ResponseEntity.ok(UserDetailDTO.fromUser(user));
+    var dto = UserDetailDTO.fromUser(user);
+    dto.setExpiry(jwtService.getExpirationTime());
+    return ResponseEntity.ok(dto);
   }
 }
