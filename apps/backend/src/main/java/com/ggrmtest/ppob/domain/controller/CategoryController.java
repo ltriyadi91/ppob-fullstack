@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@RequestMapping(value = "/api/v1")
+@RequestMapping(value = "/api/v1/categories")
 @RestController
 @RequiredArgsConstructor
 public class CategoryController {
@@ -28,7 +28,7 @@ public class CategoryController {
   private final CategoryQueryService categoryQueryService;
   private final CategoryService categoryService;
 
-  @GetMapping("/categories/paginated")
+  @GetMapping("/paginated")
   public ResponseEntity<GeneralResponseDTO<Page<CategoryDTO>>> searchCategories(
     @RequestParam(required = false) String searchTerm,
     @RequestParam(defaultValue = "0") int page,
@@ -50,7 +50,7 @@ public class CategoryController {
     return resp.ok(categories);
   }
 
-  @GetMapping("/categories")
+  @GetMapping
   public ResponseEntity<GeneralResponseDTO<List<CategoryDTO>>> searchCategories() {
     List<CategoryDTO> categories = categoryQueryService.getAllCategories();
 
@@ -58,7 +58,7 @@ public class CategoryController {
     return resp.ok(categories);
   }
 
-  @GetMapping("/categories/{id}")
+  @GetMapping("/{id}")
   public ResponseEntity<GeneralResponseDTO<CategoryDTO>> getCategoryById(
     @PathVariable Long id
   ) {
@@ -69,7 +69,7 @@ public class CategoryController {
   }
 
   @PreAuthorize("hasAuthority('ADMIN')")
-  @PostMapping("/categories")
+  @PostMapping
   public ResponseEntity<GeneralResponseDTO<CategoryDTO>> saveCategory(
     @RequestBody CategoryDTO categoryDTO
   ) {
