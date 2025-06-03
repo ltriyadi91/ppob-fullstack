@@ -16,11 +16,11 @@ public class OperatorServiceImpl implements OperatorService {
 
   @Override
   public OperatorDTO addOperator(OperatorDTO operatorDTO) {
-    var operator = operatorRepository.findByOperatorName(operatorDTO.getOperatorName());
-
-    if (operator.isPresent()) {
-      throw new ApiRequestException("Operator already exists", HttpStatus.NOT_ACCEPTABLE);
-    }
+    operatorRepository.findByOperatorName(operatorDTO.getOperatorName()).ifPresent(
+      operator -> {
+        throw new ApiRequestException("Operator already exists", HttpStatus.NOT_ACCEPTABLE);
+      }
+    );
 
     operatorRepository.save(operatorDTO.toOperator(new Operator()));
     return operatorDTO;
@@ -28,13 +28,11 @@ public class OperatorServiceImpl implements OperatorService {
 
   @Override
   public OperatorDTO saveOperator(OperatorDTO operatorDTO) {
-    var operator = operatorRepository.findById(operatorDTO.getOperatorId());
+    var operator = operatorRepository.findById(operatorDTO.getOperatorId()).orElseThrow(
+      () -> new ApiRequestException("Operator not found", HttpStatus.NOT_FOUND)
+    );
 
-    if (operator.isEmpty()) {
-      throw new ApiRequestException("Operator not found", HttpStatus.NOT_FOUND);
-    }
-
-    operatorRepository.save(operatorDTO.toOperator(operator.get()));
+    operatorRepository.save(operatorDTO.toOperator(operator));
     return operatorDTO;
   }
 }

@@ -10,6 +10,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -33,11 +35,11 @@ public class User implements UserDetails {
   private Long id;
 
   @NotNull(message = "First Name cannot be NULL")
-  //@Pattern(regexp = "[A-Za-z.\\s]+", message = "Enter valid characters in first name")
+  @Pattern(regexp = "[A-Za-z.\\s]+", message = "Enter valid characters in first name")
   private String firstName;
 
   @NotNull(message = "Last Name cannot be NULL")
-  //@Pattern(regexp = "[A-Za-z.\\s]+", message = "Enter valid characters in last name")
+  @Pattern(regexp = "[A-Za-z.\\s]+", message = "Enter valid characters in last name")
   private String lastName;
 
   @NotNull(message = "role cannot be NULL")
@@ -47,7 +49,7 @@ public class User implements UserDetails {
 
   @NotNull(message = "Please enter username")
   @Column(unique = true)
-  //@Pattern(regexp = "^[A-Za-z][A-Za-z0-9_]{7,29}$", message = "Enter valid characters in username")
+  @Pattern(regexp = "^[A-Za-z][A-Za-z0-9_]{7,29}$", message = "Enter valid characters in username")
   private String username;
 
   @NotNull(message = "Please enter the password")
