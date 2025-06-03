@@ -28,7 +28,7 @@ public class PPOBDetailController {
       slug,
       inputNumber
     );
-    
+
     var resp = new GeneralResponseDTO<PPOBDetailDTO>();
     return resp.ok(detail);
   }

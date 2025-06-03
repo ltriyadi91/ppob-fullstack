@@ -27,33 +27,41 @@ public class CategoryController {
 
   private final CategoryQueryService categoryQueryService;
   private final CategoryService categoryService;
+
   @GetMapping("/categories/paginated")
   public ResponseEntity<GeneralResponseDTO<Page<CategoryDTO>>> searchCategories(
-      @RequestParam(required = false) String searchTerm,
-      @RequestParam(defaultValue = "0") int page,
-      @RequestParam(defaultValue = "10") int size,
-      @RequestParam(defaultValue = "categoryName") String sortBy,
-      @RequestParam(defaultValue = "asc") String sortDir
+    @RequestParam(required = false) String searchTerm,
+    @RequestParam(defaultValue = "0") int page,
+    @RequestParam(defaultValue = "10") int size,
+    @RequestParam(defaultValue = "categoryName") String sortBy,
+    @RequestParam(defaultValue = "asc") String sortDir
   ) {
-    Sort.Direction direction = sortDir.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
+    Sort.Direction direction = sortDir.equalsIgnoreCase("desc")
+      ? Sort.Direction.DESC
+      : Sort.Direction.ASC;
     PageRequest pageRequest = PageRequest.of(page, size, Sort.by(direction, sortBy));
-    
-    Page<CategoryDTO> categories = categoryQueryService.findAllPaginatedCategories(searchTerm, pageRequest);
-    
+
+    Page<CategoryDTO> categories = categoryQueryService.findAllPaginatedCategories(
+      searchTerm,
+      pageRequest
+    );
+
     var resp = new GeneralResponseDTO<Page<CategoryDTO>>();
     return resp.ok(categories);
   }
-  
+
   @GetMapping("/categories")
   public ResponseEntity<GeneralResponseDTO<List<CategoryDTO>>> searchCategories() {
     List<CategoryDTO> categories = categoryQueryService.getAllCategories();
-    
+
     var resp = new GeneralResponseDTO<List<CategoryDTO>>();
     return resp.ok(categories);
   }
 
   @GetMapping("/categories/{id}")
-  public ResponseEntity<GeneralResponseDTO<CategoryDTO>> getCategoryById(@PathVariable Long id) {
+  public ResponseEntity<GeneralResponseDTO<CategoryDTO>> getCategoryById(
+    @PathVariable Long id
+  ) {
     CategoryDTO category = categoryQueryService.findCategoryById(id);
 
     var resp = new GeneralResponseDTO<CategoryDTO>();
@@ -62,13 +70,15 @@ public class CategoryController {
 
   @PreAuthorize("hasAuthority('ADMIN')")
   @PostMapping("/categories")
-  public ResponseEntity<GeneralResponseDTO<CategoryDTO>> saveCategory(@RequestBody CategoryDTO categoryDTO) {
+  public ResponseEntity<GeneralResponseDTO<CategoryDTO>> saveCategory(
+    @RequestBody CategoryDTO categoryDTO
+  ) {
     var categoryId = categoryDTO.getCategoryId();
 
     CategoryDTO category = Objects.nonNull(categoryId)
       ? categoryService.saveCategory(categoryDTO)
       : categoryService.addCategory(categoryDTO);
-    
+
     var resp = new GeneralResponseDTO<CategoryDTO>();
     return resp.ok(category);
   }

@@ -42,40 +42,56 @@ public class CategoryQueryServiceImpl implements CategoryQueryService {
 
   @Override
   public CategoryDTO findCategoryById(Long id) {
-    var category = categoryRepository.findById(id).orElseThrow(() -> new ApiRequestException("Category not found", HttpStatus.NOT_FOUND));
+    var category = categoryRepository
+      .findById(id)
+      .orElseThrow(() ->
+        new ApiRequestException("Category not found", HttpStatus.NOT_FOUND)
+      );
     return CategoryDTO.fromCategory(category);
   }
 
   @Override
-  public Page<CategoryDTO> findAllPaginatedCategories(String searchTerm, Pageable pageable) {
+  public Page<CategoryDTO> findAllPaginatedCategories(
+    String searchTerm,
+    Pageable pageable
+  ) {
     // Get all categories first
     List<Category> allCategories = categoryRepository.findAll();
-    
+
     // Filter by search term if provided
     List<Category> filteredCategories;
     if (StringUtils.hasText(searchTerm)) {
       String searchTermLower = searchTerm.toLowerCase();
-      filteredCategories = allCategories.stream()
-          .filter(category -> 
-              category.getCategoryName().toLowerCase().contains(searchTermLower) ||
-              (category.getSlug() != null && category.getSlug().toLowerCase().contains(searchTermLower)))
+      filteredCategories =
+        allCategories
+          .stream()
+          .filter(category ->
+            category.getCategoryName().toLowerCase().contains(searchTermLower) ||
+            (
+              category.getSlug() != null &&
+              category.getSlug().toLowerCase().contains(searchTermLower)
+            )
+          )
           .collect(Collectors.toList());
     } else {
       filteredCategories = allCategories;
     }
-    
+
     // Apply pagination manually
     int start = (int) pageable.getOffset();
     int end = Math.min((start + pageable.getPageSize()), filteredCategories.size());
-    
+
     // Create a sublist based on pagination parameters
-    List<Category> pageContent = start < end ? filteredCategories.subList(start, end) : List.of();
-    
+    List<Category> pageContent = start < end
+      ? filteredCategories.subList(start, end)
+      : List.of();
+
     // Convert to DTOs
-    List<CategoryDTO> categoryDTOs = pageContent.stream()
-        .map(CategoryDTO::fromCategory)
-        .collect(Collectors.toList());
-    
+    List<CategoryDTO> categoryDTOs = pageContent
+      .stream()
+      .map(CategoryDTO::fromCategory)
+      .collect(Collectors.toList());
+
     // Create and return a Page object
     return new PageImpl<>(categoryDTOs, pageable, filteredCategories.size());
   }

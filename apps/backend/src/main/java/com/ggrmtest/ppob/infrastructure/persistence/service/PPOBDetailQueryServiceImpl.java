@@ -8,7 +8,6 @@ import com.ggrmtest.ppob.infrastructure.persistence.entity.Product;
 import com.ggrmtest.ppob.infrastructure.persistence.repository.PrefixNumberRepository;
 import com.ggrmtest.ppob.infrastructure.persistence.repository.ProductRepository;
 import com.ggrmtest.ppob.infrastructure.persistence.repository.TickerRepository;
-
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -43,22 +42,25 @@ public class PPOBDetailQueryServiceImpl implements PPOBDetailQueryService {
 
     if (!inputParam.isEmpty()) {
       var prefixNumber = prefixNumberRepository
-      .findAll()
-      .stream()
-      .filter(p -> p.getPrefixNumber().contains(inputParam))
-      .findFirst();
+        .findAll()
+        .stream()
+        .filter(p -> p.getPrefixNumber().contains(inputParam))
+        .findFirst();
 
-      products = productRepository.findByCategoryGroupByOperator(
-        categoryDto.getCategoryId()
-      );
+      products =
+        productRepository.findByCategoryGroupByOperator(categoryDto.getCategoryId());
 
       products =
         products
-            .stream()
-            .filter(product ->
-              product.getOperator().getId().toString().contains(prefixNumber.get().getOperator().getId().toString())
-            )
-            .toList();
+          .stream()
+          .filter(product ->
+            product
+              .getOperator()
+              .getId()
+              .toString()
+              .contains(prefixNumber.get().getOperator().getId().toString())
+          )
+          .toList();
     }
 
     var productDtos = products.stream().map(ProductDTO::fromEntity).toList();
