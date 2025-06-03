@@ -78,7 +78,9 @@ export default function CategoriesPage() {
   const [modalOpened, setModalOpened] = useState(false);
   const [editingCategory, setEditingCategory] = useState<CategoryDTO | null>(null);
 
-  const { token } = useAuth({});
+  const { token } = useAuth({
+    isDashboard: true,
+  });
 
   // React Query for fetching categories with pagination
   const {
@@ -161,13 +163,13 @@ export default function CategoriesPage() {
     },
     {
       accessor: 'isInputNumberRequired',
-      title: 'Input Required',
+      title: 'Input Number Required',
       render: (category) => (
         <Badge color={category.isInputNumberRequired ? 'blue' : 'gray'}>
           {category.isInputNumberRequired ? 'Yes' : 'No'}
         </Badge>
       ),
-      width: 120,
+      width: 200,
     },
     {
       accessor: 'actions',
@@ -202,7 +204,7 @@ export default function CategoriesPage() {
   };
 
   // Mutation for creating/updating categories
-  const mutation = useMutation({
+  const categoryMutation = useMutation({
     mutationFn: async (values: CategoryDTO) => {
       const apiUrl = `${process.env.NEXT_PUBLIC_API_V1}/categories`;
 
@@ -242,8 +244,10 @@ export default function CategoriesPage() {
           }`
         );
       }
+      
+      const apiResponse = await response.json();
 
-      return await response.json();
+      return apiResponse.data;
     },
     onSuccess: () => {
       // Close modal and refresh data
@@ -257,7 +261,7 @@ export default function CategoriesPage() {
 
   // Handle form submission
   const handleSubmit = (values: CategoryDTO) => {
-    mutation.mutate(values);
+    categoryMutation.mutate(values);
   };
 
   return (

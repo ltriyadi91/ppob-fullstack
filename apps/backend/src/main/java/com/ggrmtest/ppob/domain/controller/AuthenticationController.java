@@ -1,6 +1,7 @@
 package com.ggrmtest.ppob.domain.controller;
 
 import com.ggrmtest.ppob.domain.dto.LoginResponseDTO;
+import com.ggrmtest.ppob.domain.dto.UserDetailDTO;
 import com.ggrmtest.ppob.domain.dto.UserLoginDTO;
 import com.ggrmtest.ppob.domain.dto.UserRegisterDTO;
 import com.ggrmtest.ppob.infrastructure.persistence.JwtService;
@@ -8,10 +9,13 @@ import com.ggrmtest.ppob.infrastructure.persistence.entity.User;
 import com.ggrmtest.ppob.infrastructure.persistence.service.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 @RequestMapping("/api/v1/auth")
 @RestController
@@ -49,5 +53,15 @@ public class AuthenticationController {
       .setToken(jwtToken)
       .setExpiresIn(jwtService.getExpirationTime());
     return ResponseEntity.ok(loginResponse);
+  }
+
+  @GetMapping("/validate")
+  public ResponseEntity<UserDetailDTO> validateToken() {
+    Authentication authentication = SecurityContextHolder
+      .getContext()
+      .getAuthentication();
+    String username = authentication.getName();
+    var user = authenticationService.findByUserName(username);
+    return ResponseEntity.ok(UserDetailDTO.fromUser(user));
   }
 }

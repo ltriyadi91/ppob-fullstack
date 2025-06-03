@@ -16,11 +16,15 @@ import {
 } from '@mantine/core';
 import { useForm, isEmail, hasLength } from '@mantine/form';
 import { useAuth } from '@/hooks/useAuth';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
-  const { login, isLoading } = useAuth({
-    redirectPath: '/dashboard',
-    redirectAfterLogout: '/login/dashboard',
+  const router = useRouter();
+  const { login, isLoading, userProfile, userProfileCalled } = useAuth({
+    redirectPath: '/dashboard/admin',
+    redirectAfterLogout: '/dashboard/login',
+    isDashboard: true,
   });
 
   const form = useForm({
@@ -38,6 +42,12 @@ export default function LoginPage() {
   const handleSubmit = async (values: typeof form.values) => {
     await login({ username: values.email, password: values.password });
   };
+
+  useEffect(() => {
+    if (userProfile && userProfileCalled) {
+      router.push('/dashboard/admin');
+    }
+  }, [userProfile, userProfileCalled]);
 
   return (
     <Center mih="100vh" bg="var(--mantine-color-gray-0)">

@@ -18,13 +18,24 @@ type AuthInput = {
   isDashboard?: boolean;
 }
 
+type UserProfile = {
+  id: number;
+  username: string;
+  firstName: string;
+  lastName: string;
+  role: string;
+}
+
 export function useAuth({
   redirectPath = '/pulsa',
   redirectAfterLogout = '/pulsa',
   isDashboard = false,
 }: AuthInput) {
-  const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [userProfileCalled, setUserProfileCalled] = useState<boolean>(false);
+
+  const [token, setToken] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
@@ -35,6 +46,34 @@ export function useAuth({
     }
     setIsLoading(false);
   }, []);
+
+  useEffect(() => {
+    if (token) {
+      fetchUser();
+    }
+  }, [token]);
+
+  const fetchUser = async () => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_V1}/auth/validate`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data: UserProfile = await response.json();
+        console.log({ data })
+        setUserProfile(data);
+      }
+    } catch (err) {
+      console.error('Error fetching user profile:', err);
+    } finally {
+      setUserProfileCalled(true);
+    }
+  };
 
   const login = async (credentials: LoginCredentials) => {
     setIsLoading(true);
@@ -80,6 +119,8 @@ export function useAuth({
 
   return {
     token,
+    userProfile,
+    userProfileCalled,
     isLoading,
     error,
     login,
