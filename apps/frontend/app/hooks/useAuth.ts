@@ -65,11 +65,10 @@ export function useAuth({
 
       if (response.ok) {
         const data: UserProfile = await response.json();
-        console.log({ data })
         setUserProfile(data);
       }
     } catch (err) {
-      console.error('Error fetching user profile:', err);
+      console.warn('Error fetching user profile:', err);
     } finally {
       setUserProfileCalled(true);
     }

@@ -10,7 +10,6 @@ import {
   Text,
   Button,
   Collapse,
-  rem,
   Badge,
 } from "@mantine/core";
 import { IconChevronDown, IconChevronUp } from "@tabler/icons-react";

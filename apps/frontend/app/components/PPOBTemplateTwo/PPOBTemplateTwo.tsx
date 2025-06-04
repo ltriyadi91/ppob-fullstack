@@ -66,7 +66,6 @@ const PPOBTemplateTwo: React.FC<PPOBTemplateTwoProps> = ({
   );
 
   const handleProductSelect = (productId: string | number) => {
-    console.log(productId);
     setSelectedProduct(productId);
   };
 

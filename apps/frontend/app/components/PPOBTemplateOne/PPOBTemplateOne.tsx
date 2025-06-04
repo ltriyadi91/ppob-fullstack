@@ -6,6 +6,7 @@ import useDebounceInput from '@/hooks/useDebounceInput';
 import Ticker from '@/components/Ticker/Ticker';
 import ProductItemComponent from '@/components/ProductItem/ProductItem';
 import { OperatorItem, ProductItem, TickerItem } from '@/[slug]/page';
+import { SimpleGrid } from '@mantine/core';
 
 interface PPOBTemplateOneProps {
   operators: OperatorItem[];
@@ -35,7 +36,9 @@ const PPOBTemplateOne: React.FC<PPOBTemplateOneProps> = ({
 }) => {
   const [showProductList, setShowProductList] = useState(false);
   const [showUnavailableMessage, setShowUnavailableMessage] = useState(true);
-  const [selectedProductId, setSelectedProductId] = useState<string | number | null>(null);
+  const [selectedProductId, setSelectedProductId] = useState<
+    string | number | null
+  >(null);
 
   const { handleChangeForm: debouncedPhoneNumberChange } = useDebounceInput({
     callback: () => {
@@ -68,7 +71,8 @@ const PPOBTemplateOne: React.FC<PPOBTemplateOneProps> = ({
   const tickerMessage = tickers.length > 0 ? tickers[0].message : '';
   const operatorImageUrl = operators.length > 0 ? operators[0].imageUrl : '';
 
-  const isProductListShow = showProductList && !isLoading && !isFetching && isFetched;
+  const isProductListShow =
+    showProductList && !isLoading && !isFetching && isFetched;
 
   return (
     <div className="flex flex-col flex-grow bg-gray-50 min-h-screen p-4">
@@ -94,19 +98,19 @@ const PPOBTemplateOne: React.FC<PPOBTemplateOneProps> = ({
       </div>
       {isProductListShow ? (
         <section className="flex-grow p-4 bg-white rounded-lg shadow-sm">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-            {products.length > 0 ? (
-              products.map((pkg) => (
-                <ProductItemComponent
-                  key={pkg.id}
-                  pkg={pkg}
-                  showUnavailableMessage={showUnavailableMessage}
-                  onSelect={handleProductSelect}
-                  isSelected={selectedProductId === pkg.id}
-                />
-              ))
-            ) : null}
-          </div>
+          <SimpleGrid cols={{ base: 1, xs: 2, sm: 3, md: 4 }} spacing="lg">
+            {products.length > 0
+              ? products.map((pkg) => (
+                  <ProductItemComponent
+                    key={pkg.id}
+                    pkg={pkg}
+                    showUnavailableMessage={showUnavailableMessage}
+                    onSelect={handleProductSelect}
+                    isSelected={selectedProductId === pkg.id}
+                  />
+                ))
+              : null}
+          </SimpleGrid>
         </section>
       ) : null}
     </div>

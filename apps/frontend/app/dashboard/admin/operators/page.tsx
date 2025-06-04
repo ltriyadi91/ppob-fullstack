@@ -122,7 +122,6 @@ export default function OperatorsPage() {
       if (!response.ok) throw new Error('Failed to fetch operators');
 
       const apiResponse = await response.json();
-      console.log({ apiResponse });
 
       if (apiResponse.statusCode !== '00') {
         throw new Error(

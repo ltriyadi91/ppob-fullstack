@@ -15,7 +15,6 @@ import {
   Select,
   Alert,
   Flex,
-  Box,
 } from '@mantine/core';
 import { DataTable, DataTableColumn } from 'mantine-datatable';
 import {
@@ -143,7 +142,6 @@ export const api = {
       throw new Error(`Error saving product: ${response.statusText}`);
     }
     const data = await response.json();
-    console.log({ saveProduct: data });
     return data.data;
   },
   deleteProduct: async (id: number) => {
