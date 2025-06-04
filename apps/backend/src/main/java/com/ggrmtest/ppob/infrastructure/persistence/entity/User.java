@@ -51,8 +51,8 @@ public class User implements UserDetails, Auditable {
   @NotNull(message = "Please enter username")
   @Column(unique = true)
   @Pattern(
-    regexp = "^[A-Za-z][A-Za-z0-9_]{7,29}$",
-    message = "Enter valid characters in username"
+    regexp = "^[A-Za-z][A-Za-z0-9_]{7,29}$|^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$",
+    message = "Enter a valid username or email address"
   )
   private String username;
 
