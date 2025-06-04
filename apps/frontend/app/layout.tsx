@@ -1,7 +1,14 @@
+'use client';
+
 import { MantineProvider } from '@mantine/core';
+import { Notifications } from '@mantine/notifications';
 import './global.css';
 import '@mantine/core/styles.css';
+import '@mantine/notifications/styles.css';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
+// Create a client
+const queryClient = new QueryClient();
 
 export default function RootLayout({
   children,
@@ -11,7 +18,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <MantineProvider>{children}</MantineProvider>
+        <QueryClientProvider client={queryClient}>
+          <MantineProvider>
+            <Notifications />
+            {children}
+          </MantineProvider>
+        </QueryClientProvider>
       </body>
     </html>
   );

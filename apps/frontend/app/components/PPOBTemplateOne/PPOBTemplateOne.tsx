@@ -18,6 +18,8 @@ interface PPOBTemplateOneProps {
   initialInputNumber: string;
   onInputChange: (newNumber: string) => void;
   refetch: () => void;
+  onDirectOrder: (productId: string | number, inputNumber?: string) => void;
+  isOrderPending?: boolean;
 }
 
 const MINIMUM_INPUT_NUMBER_LENGTH = 3;
@@ -33,6 +35,8 @@ const PPOBTemplateOne: React.FC<PPOBTemplateOneProps> = ({
   initialInputNumber,
   onInputChange,
   refetch,
+  onDirectOrder,
+  isOrderPending = false,
 }) => {
   const [showProductList, setShowProductList] = useState(false);
   const [showUnavailableMessage, setShowUnavailableMessage] = useState(true);
@@ -68,6 +72,10 @@ const PPOBTemplateOne: React.FC<PPOBTemplateOneProps> = ({
     setSelectedProductId(productId);
   };
 
+  const handleDirectOrder = (productId: string | number) => {
+    onDirectOrder(productId, initialInputNumber);
+  };
+
   const tickerMessage = tickers.length > 0 ? tickers[0].message : '';
   const operatorImageUrl = operators.length > 0 ? operators[0].imageUrl : '';
 
@@ -75,7 +83,7 @@ const PPOBTemplateOne: React.FC<PPOBTemplateOneProps> = ({
     showProductList && !isLoading && !isFetching && isFetched;
 
   return (
-    <div className="flex flex-col flex-grow bg-gray-50 min-h-screen p-4">
+    <div className="flex flex-col flex-grow bg-gray-50 min-h-screen p-4 pb-24">
       {tickers.length > 0 && (
         <div className="mb-4">
           <Ticker
@@ -106,6 +114,7 @@ const PPOBTemplateOne: React.FC<PPOBTemplateOneProps> = ({
                     pkg={pkg}
                     showUnavailableMessage={showUnavailableMessage}
                     onSelect={handleProductSelect}
+                    onOrderDirect={handleDirectOrder}
                     isSelected={selectedProductId === pkg.id}
                   />
                 ))

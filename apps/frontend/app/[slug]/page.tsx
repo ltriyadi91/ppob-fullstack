@@ -1,12 +1,14 @@
 'use client';
 import { useParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
-
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
 import DetailHeader from '@/components/DetailHeader/DetailHeader';
 import PPOBTemplateOne from '@/components/PPOBTemplateOne/PPOBTemplateOne';
 import PPOBTemplateTwo from '@/components/PPOBTemplateTwo/PPOBTemplateTwo';
 import PPOBTemplateThree from '@/components/PPOBTemplateThree/PPOBTemplateThree';
+import { notifications } from '@mantine/notifications';
+import { useAuth } from '@/hooks/useAuth';
 
 export type Category = {
   categoryId: number;
@@ -18,6 +20,17 @@ export type Category = {
   slug: string;
   imageUrl: string;
 };
+
+export interface ProductItem {
+  id: string | number;
+  productName: string;
+  productDescription: string;
+  priceLabel: string;
+  isAvailable: boolean;
+  isDiscount?: boolean;
+  newPriceLabel?: string;
+  discountPercentage?: number;
+}
 
 export type TickerItem = {
   message: string;
@@ -31,21 +44,6 @@ export type OperatorItem = {
   isActive: boolean;
   slug: string;
   imageUrl: string;
-};
-
-export type ProductItem = {
-  id: number;
-  operatorId: number;
-  categoryId: number;
-  productName: string;
-  productDescription: string;
-  priceNumeric: number;
-  priceLabel: string;
-  newPriceNumeric: number;
-  newPriceLabel: string;
-  discountPercentage: number;
-  isDiscount: boolean;
-  isAvailable: boolean;
 };
 
 export type CategoryDetail = {
@@ -73,6 +71,7 @@ export default function DetailPage() {
   const [tickers, setTickers] = useState<TickerItem[]>([]);
   const [operators, setOperators] = useState<OperatorItem[]>([]);
   const [products, setProducts] = useState<ProductItem[]>([]);
+  const { token } = useAuth({});
 
   const params = useParams();
   const { slug } = params;
@@ -86,8 +85,10 @@ export default function DetailPage() {
   } = useQuery({
     queryKey: ['categoriesData', slug, selectedOperator],
     queryFn: () => {
-      let apiUrl = `${process.env.NEXT_PUBLIC_API_V1}/ppob-detail/${slug as string}`;
-      
+      let apiUrl = `${process.env.NEXT_PUBLIC_API_V1}/ppob-detail/${
+        slug as string
+      }`;
+
       if (inputNumberQuery) {
         apiUrl += `?inputNumber=${inputNumberQuery}`;
       } else if (selectedOperator) {
@@ -110,7 +111,6 @@ export default function DetailPage() {
 
   const handleInputChange = (newNumber: string) => {
     setInputNumber(newNumber);
-    
   };
 
   const handleInputQueryChange = (newNumber: string) => {
@@ -119,7 +119,54 @@ export default function DetailPage() {
 
   const handleSelectOperator = (operatorId: string | null) => {
     setSelectedOperator(operatorId);
-  }
+  };
+
+  // Direct order mutation
+  const router = useRouter();
+  
+  const { mutate: placeDirectOrder, isPending: isOrderPending } = useMutation({
+    mutationFn: async ({ productId, inputNumber }: { productId: string | number, inputNumber?: string }) => {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_V1}/orders/direct`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ productId, inputNumber }),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.data || 'Failed to place order');
+      }
+      
+      return response.json();
+    },
+    onSuccess: (data) => {
+      notifications.show({
+        title: 'Order Placed Successfully',
+        message: `Your order #${data.orderId} has been placed successfully`,
+        color: 'green',
+      });
+      
+      // Redirect to order details or success page
+      router.push('/orders');
+    },
+    onError: (error: Error) => {
+      console.log({error});
+      notifications.show({
+        title: 'Order Failed',
+        message: error.message || 'Failed to place your order. Please try again.',
+        color: 'red',
+      });
+    },
+  });
+  
+  const handleDirectOrder = (productId: string | number, inputNumber?: string) => {
+    // Use the input number from state if not provided
+    const numberToUse = inputNumber || inputNumberQuery || '';
+    placeDirectOrder({ productId, inputNumber: numberToUse });
+  };
 
   const templateProps = {
     operators,
@@ -128,20 +175,24 @@ export default function DetailPage() {
     isLoading,
     isFetching,
     isFetched,
-    refetch
-  }
+    refetch,
+    onDirectOrder: handleDirectOrder,
+    isOrderPending,
+  };
 
   return (
     <>
       <DetailHeader categoryName={categoryDetail.categoryName} />
-      {categoryDetail.isPrefixNumberRequired && categoryDetail.isInputNumberRequired ? (
+      {categoryDetail.isPrefixNumberRequired &&
+      categoryDetail.isInputNumberRequired ? (
         <PPOBTemplateOne
           {...templateProps}
           initialInputNumber={inputNumberQuery}
           onInputChange={handleInputQueryChange}
         />
       ) : null}
-      {!categoryDetail.isPrefixNumberRequired && categoryDetail.isInputNumberRequired ? (
+      {!categoryDetail.isPrefixNumberRequired &&
+      categoryDetail.isInputNumberRequired ? (
         <PPOBTemplateTwo
           {...templateProps}
           initialInputNumber={inputNumber}
@@ -149,7 +200,8 @@ export default function DetailPage() {
           onSelectedOperator={handleSelectOperator}
         />
       ) : null}
-      {!categoryDetail.isPrefixNumberRequired && !categoryDetail.isInputNumberRequired ? (
+      {!categoryDetail.isPrefixNumberRequired &&
+      !categoryDetail.isInputNumberRequired ? (
         <PPOBTemplateThree
           {...templateProps}
           onSelectOperator={handleSelectOperator}

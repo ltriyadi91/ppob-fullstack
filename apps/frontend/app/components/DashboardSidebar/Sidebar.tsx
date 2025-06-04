@@ -21,6 +21,7 @@ import {
 } from '@tabler/icons-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useAuth } from '@/hooks/useAuth';
 
 interface NavLinkProps {
   icon: typeof IconCategory;
@@ -64,6 +65,7 @@ const navItems = [
 export function Sidebar({ children }: { children: React.ReactNode }) {
   const [opened, setOpened] = useState(false);
   const pathname = usePathname();
+  const { userProfile } = useAuth({ isDashboard: true });
 
   return (
     <AppShell
@@ -77,7 +79,7 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
     >
       <AppShell.Header p="md">
         <Group justify="space-between">
-          <Text size="lg" fw={700}>E-commerce Admin</Text>
+          <Text size="lg" fw={700}>PPOB Admin</Text>
           <Burger
             opened={opened}
             onClick={() => setOpened(!opened)}
@@ -99,10 +101,10 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
                 />
                 <Box>
                   <Text fw={500} size="sm">
-                    John Doe
+                    {userProfile?.firstName} {userProfile?.lastName}
                   </Text>
                   <Text c="dimmed" size="xs">
-                    Administrator
+                    {userProfile?.role}
                   </Text>
                 </Box>
               </Group>

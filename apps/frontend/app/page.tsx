@@ -2,8 +2,9 @@
 import Header from '@/components/Header/Header';
 import ServiceGrid from '@/components/ServiceGrid/ServiceGrid';
 import WelcomeSection from '@/components/WelcomeSection/WelcomeSection';
+import BottomNavbar from '@/components/BottomNavbar/BottomNavbar';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useAuth } from './hooks/useAuth'; // Import the new hook
+import { useAuth } from './hooks/useAuth';
 
 export default function HomePage() {
   const { isAuthenticated } = useAuth({
@@ -22,6 +23,7 @@ export default function HomePage() {
           <ServiceGrid />
         </main>
       </div>
+      <BottomNavbar />
     </QueryClientProvider>
   );
 }

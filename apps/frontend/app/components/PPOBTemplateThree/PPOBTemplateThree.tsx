@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Ticker from '@/components/Ticker/Ticker';
 import { OperatorItem, ProductItem, TickerItem } from '@/[slug]/page';
 import { Card, Image, Text, Container, SimpleGrid, Select, Button, Group, Box, Divider, Loader, ActionIcon } from '@mantine/core';
-import { IconX } from '@tabler/icons-react';
+import { IconX, IconShoppingCart } from '@tabler/icons-react';
 
 interface PPOBTemplateThreeProps {
   operators: OperatorItem[];
@@ -14,6 +14,8 @@ interface PPOBTemplateThreeProps {
   title?: string;
   subtitle?: string;
   onSelectOperator: (operatorId: string) => void;
+  onDirectOrder: (productId: string | number, inputNumber?: string) => void;
+  isOrderPending?: boolean;
 }
 
 const PPOBTemplateThree: React.FC<PPOBTemplateThreeProps> = ({
@@ -21,16 +23,18 @@ const PPOBTemplateThree: React.FC<PPOBTemplateThreeProps> = ({
   products,
   tickers,
   isLoading,
-  onSelectOperator
+  onSelectOperator,
+  onDirectOrder,
+  isOrderPending = false
 }) => {
   const [showUnavailableMessage, setShowUnavailableMessage] = useState(true);
   const [selectedOperator, setSelectedOperator] = useState<OperatorItem | null>(null);
-  const [selectedProduct, setSelectedProduct] = useState<string>('');
+  const [selectedProductId, setSelectedProductId] = useState<string>('');
   
   // Reset selected product when products change
   useEffect(() => {
     if (products.length > 0) {
-      setSelectedProduct(products[0].id.toString());
+      setSelectedProductId(products[0].id.toString());
     }
   }, [products]);
   
@@ -47,7 +51,21 @@ const PPOBTemplateThree: React.FC<PPOBTemplateThreeProps> = ({
   };
   
   // Find the currently selected product
-  const currentProduct = products.find(p => p.id.toString() === selectedProduct);
+  const currentProduct = products.find(p => p.id.toString() === selectedProductId);
+  
+  // Handle product selection change
+  const handleProductChange = (value: string | null) => {
+    if (value) {
+      setSelectedProductId(value);
+    }
+  };
+  
+  // Handle direct order
+  const handleDirectOrder = () => {
+    if (currentProduct) {
+      onDirectOrder(currentProduct.id);
+    }
+  };
   
   // Create product options for the select dropdown
   const productOptions = products.map(product => ({
@@ -59,7 +77,7 @@ const PPOBTemplateThree: React.FC<PPOBTemplateThreeProps> = ({
   const tickerMessage = tickers.length > 0 ? tickers[0].message : '';
 
   return (
-    <div className="flex flex-col flex-grow bg-gray-50 min-h-screen p-4">
+    <div className="flex flex-col flex-grow bg-gray-50 min-h-screen p-4 pb-24">
       {tickers.length > 0 && (
         <div className="mb-4">
           <Ticker
@@ -144,8 +162,8 @@ const PPOBTemplateThree: React.FC<PPOBTemplateThreeProps> = ({
                         <Text fw={500} className="!mb-2">Select Product</Text>
                         <Select
                           data={productOptions}
-                          value={selectedProduct}
-                          onChange={(value) => value && setSelectedProduct(value)}
+                          value={selectedProductId}
+                          onChange={handleProductChange}
                           className="mb-6"
                         />
                         
@@ -172,7 +190,16 @@ const PPOBTemplateThree: React.FC<PPOBTemplateThreeProps> = ({
                           </Text>
                         )}
                         
-                        <Button fullWidth className='!bg-red-500 hover:!bg-red-600' size="md" mt="sm">
+                        <Button 
+                          fullWidth 
+                          className='!bg-red-500 hover:!bg-red-600' 
+                          size="md" 
+                          mt="sm"
+                          onClick={handleDirectOrder}
+                          loading={isOrderPending}
+                          disabled={!currentProduct?.isAvailable || isOrderPending}
+                          leftSection={<IconShoppingCart size={16} />}
+                        >
                           Beli Sekarang
                         </Button>
                       </>

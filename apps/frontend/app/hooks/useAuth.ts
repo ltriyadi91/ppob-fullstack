@@ -75,10 +75,12 @@ export function useAuth({
   };
 
   const login = async (credentials: LoginCredentials) => {
+    const pathUrl = isDashboard ? '/auth/admin/login' : '/auth/login';
     setIsLoading(true);
     setError(null);
+    
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_V1}/auth/login`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_V1}${pathUrl}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

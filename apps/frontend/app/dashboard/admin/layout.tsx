@@ -21,7 +21,7 @@ export default function RootLayout({
     if (!userProfile && userProfileCalled) {
       router.push('/dashboard/login');
     }
-  }, [userProfileCalled, userProfile]);
+  }, [userProfile, userProfileCalled]);
 
   return (
     <QueryClientProvider client={queryClient}>

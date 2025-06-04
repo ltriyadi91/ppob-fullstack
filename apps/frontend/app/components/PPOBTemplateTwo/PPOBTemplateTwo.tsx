@@ -20,6 +20,8 @@ interface PPOBTemplateTwoProps {
   selectLabel?: string;
   selectPlaceholder?: string;
   onSelectedOperator: (operatorId: string | null) => void;
+  onDirectOrder: (productId: string | number, inputNumber?: string) => void;
+  isOrderPending?: boolean;
 }
 
 const PPOBTemplateTwo: React.FC<PPOBTemplateTwoProps> = ({
@@ -33,12 +35,14 @@ const PPOBTemplateTwo: React.FC<PPOBTemplateTwoProps> = ({
   onInputChange,
   selectLabel = 'Pilih Operator',
   selectPlaceholder = 'Pilih operator',
-  onSelectedOperator
+  onSelectedOperator,
+  onDirectOrder,
+  isOrderPending = false
 }) => {
   const [showProductList, setShowProductList] = useState(false);
   const [showUnavailableMessage, setShowUnavailableMessage] = useState(true);
   const [selectedOperator, setSelectedOperator] = useState<string | null>(null);
-  const [selectedProduct, setSelectedProduct] = useState<string | number | null>(null);  
+  const [selectedProductId, setSelectedProductId] = useState<string | number | null>(null);
   
   // Prepare data for Select dropdown
   const operatorSelectData = operators.map(op => ({
@@ -66,14 +70,18 @@ const PPOBTemplateTwo: React.FC<PPOBTemplateTwoProps> = ({
   );
 
   const handleProductSelect = (productId: string | number) => {
-    setSelectedProduct(productId);
+    setSelectedProductId(productId);
+  };
+  
+  const handleDirectOrder = (productId: string | number) => {
+    onDirectOrder(productId, initialInputNumber);
   };
 
   const tickerMessage = tickers.length > 0 ? tickers[0].message : '';
   const isProductListShow = showProductList && !isLoading && !isFetching && isFetched;
 
   return (
-    <div className="flex flex-col flex-grow bg-gray-50 min-h-screen p-4">
+    <div className="flex flex-col flex-grow bg-gray-50 min-h-screen p-4 pb-24">
       {tickers.length > 0 && (
         <div className="mb-4">
           <Ticker
@@ -121,7 +129,8 @@ const PPOBTemplateTwo: React.FC<PPOBTemplateTwoProps> = ({
                   pkg={pkg}
                   showUnavailableMessage={showUnavailableMessage}
                   onSelect={handleProductSelect}
-                  isSelected={selectedProduct === pkg.id}
+                  onOrderDirect={handleDirectOrder}
+                  isSelected={selectedProductId === pkg.id}
                 />
               ))
             ) : null}
