@@ -1,5 +1,6 @@
 package com.ggrmtest.ppob.infrastructure.persistence.entity;
 
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -8,6 +9,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
+
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -17,7 +21,7 @@ import lombok.experimental.Accessors;
 @Table(name = "cart_items")
 @Accessors(chain = true)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class CartItem {
+public class CartItem implements Auditable {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,6 +35,12 @@ public class CartItem {
   @JoinColumn(name = "cart_id")
   private Cart cart;
 
+  @Embedded
+  @EqualsAndHashCode.Include
+  @JsonUnwrapped
+  private AuditInfo auditInfo = new AuditInfo();
+
   private BigDecimal cartPrice;
   private Integer cartQuantity;
+  private String inputNumber;
 }

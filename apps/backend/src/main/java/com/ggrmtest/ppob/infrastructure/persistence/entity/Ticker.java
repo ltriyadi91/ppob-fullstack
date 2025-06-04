@@ -1,7 +1,9 @@
 package com.ggrmtest.ppob.infrastructure.persistence.entity;
 
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.ggrmtest.ppob.common.enumeration.TickerType;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -19,7 +21,7 @@ import lombok.experimental.Accessors;
 @Table(name = "tickers")
 @Accessors(chain = true)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class Ticker {
+public class Ticker implements Auditable {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
@@ -39,4 +41,9 @@ public class Ticker {
   private TickerType type;
 
   private Boolean isActive;
+
+  @Embedded
+  @EqualsAndHashCode.Include
+  @JsonUnwrapped
+  private AuditInfo auditInfo = new AuditInfo();
 }

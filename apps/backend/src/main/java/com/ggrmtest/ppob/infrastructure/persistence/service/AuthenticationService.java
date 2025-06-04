@@ -64,6 +64,22 @@ public class AuthenticationService {
     );
 
     var user = userRepository.findByUsername(input.getUsername()).orElseThrow();
+    if (!user.getRole().equals(Role.USER)) {
+      throw new ApiRequestException("User is not a customer", HttpStatus.FORBIDDEN);
+    }
+
+    return user;
+  }
+
+  public User userAdminAuthenticate(UserLoginDTO input) {
+    authenticationManager.authenticate(
+      new UsernamePasswordAuthenticationToken(input.getUsername(), input.getPassword())
+    );
+
+    var user = userRepository.findByUsername(input.getUsername()).orElseThrow();
+    if (!user.getRole().equals(Role.ADMIN)) {
+      throw new ApiRequestException("User is not an admin", HttpStatus.FORBIDDEN);
+    }
 
     return user;
   }

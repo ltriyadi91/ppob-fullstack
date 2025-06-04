@@ -1,5 +1,8 @@
 package com.ggrmtest.ppob.infrastructure.persistence.entity;
 
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
+
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -14,7 +17,7 @@ import lombok.experimental.Accessors;
 @Table(name = "operators")
 @Accessors(chain = true)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class Operator {
+public class Operator implements Auditable {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
@@ -28,6 +31,11 @@ public class Operator {
 
   @NotNull(message = "Operator Image cannot be NULL")
   private String imageUrl;
+
+  @Embedded
+  @EqualsAndHashCode.Include
+  @JsonUnwrapped
+  private AuditInfo auditInfo = new AuditInfo();
 
   private Boolean isActive;
   private String slug;

@@ -22,6 +22,7 @@ public class ProductDTO {
   private Boolean isDiscount;
   private Boolean isAvailable;
   private String categoryName;
+  private String categoryImage;
   private String operatorName;
 
   public static ProductDTO fromEntity(Product product) {
@@ -39,6 +40,7 @@ public class ProductDTO {
       .setIsDiscount(product.getIsDiscount())
       .setIsAvailable(product.getIsAvailable())
       .setCategoryName(product.getCategory().getCategoryName())
+      .setCategoryImage(product.getCategory().getImageUrl())
       .setOperatorName(product.getOperator().getOperatorName());
   }
 

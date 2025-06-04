@@ -1,5 +1,8 @@
 package com.ggrmtest.ppob.infrastructure.persistence.entity;
 
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
+
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -14,7 +17,7 @@ import lombok.experimental.Accessors;
 @Table(name = "categories")
 @Accessors(chain = true)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class Category {
+public class Category implements Auditable {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
@@ -31,6 +34,11 @@ public class Category {
 
   @NotNull(message = "Slug cannot be NULL")
   private String slug;
+
+  @Embedded
+  @EqualsAndHashCode.Include
+  @JsonUnwrapped
+  private AuditInfo auditInfo = new AuditInfo();
 
   private Boolean isActive;
   private Boolean isInputNumberRequired;

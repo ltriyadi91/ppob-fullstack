@@ -1,5 +1,6 @@
 package com.ggrmtest.ppob.domain.controller;
 
+import com.ggrmtest.ppob.domain.dto.DirectOrderDTO;
 import com.ggrmtest.ppob.domain.dto.OrderDTO;
 import com.ggrmtest.ppob.infrastructure.persistence.service.AuthenticationService;
 import com.ggrmtest.ppob.infrastructure.persistence.service.OrderQueryService;
@@ -12,10 +13,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@RequestMapping(value = "/api/v1/order")
+@RequestMapping(value = "/api/v1/orders")
 @RestController
 @RequiredArgsConstructor
 public class CustomerOrderController {
@@ -37,15 +39,29 @@ public class CustomerOrderController {
     return ResponseEntity.status(HttpStatus.OK).body(cart);
   }
 
-  @PostMapping
+  @PostMapping("/cart")
   @PreAuthorize("hasAuthority('USER')")
-  public ResponseEntity<OrderDTO> createOrder() {
+  public ResponseEntity<OrderDTO> createOrderFromCart() {
     Authentication authentication = SecurityContextHolder
       .getContext()
       .getAuthentication();
     String username = authentication.getName();
     var user = authService.findByUserName(username);
-    var order = orderService.placeOrder(user.getId());
+    var order = orderService.placeOrderFromCart(user.getId());
+    return ResponseEntity.status(HttpStatus.CREATED).body(order);
+  }
+
+  @PostMapping("/direct")
+  @PreAuthorize("hasAuthority('USER')")
+  public ResponseEntity<OrderDTO> createDirectOrder(
+    @RequestBody DirectOrderDTO directOrderDTO
+  ) {
+    Authentication authentication = SecurityContextHolder
+      .getContext()
+      .getAuthentication();
+    String username = authentication.getName();
+    var user = authService.findByUserName(username);
+    var order = orderService.placeDirectOrder(user.getId(), directOrderDTO);
     return ResponseEntity.status(HttpStatus.CREATED).body(order);
   }
 }

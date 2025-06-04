@@ -15,6 +15,7 @@ public class CartItemDTO {
   private Integer cartQuantity;
   private BigDecimal cartPrice;
   private ProductDTO product;
+  private String inputNumber;
 
   public static CartItemDTO fromCartItem(CartItem cartItem) {
     return new CartItemDTO()
@@ -27,6 +28,10 @@ public class CartItemDTO {
   }
 
   public CartItem toCartItem(CartItem cartItem) {
-    return cartItem.setCartQuantity(cartQuantity).setCartPrice(cartPrice);
+    return cartItem
+      .setId(id)
+      .setCartQuantity(cartQuantity)
+      .setCartPrice(cartPrice)
+      .setInputNumber(inputNumber);
   }
 }

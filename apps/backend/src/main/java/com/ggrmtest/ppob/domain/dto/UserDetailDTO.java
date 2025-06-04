@@ -2,7 +2,6 @@ package com.ggrmtest.ppob.domain.dto;
 
 import com.ggrmtest.ppob.common.enumeration.Role;
 import com.ggrmtest.ppob.infrastructure.persistence.entity.User;
-import java.math.BigInteger;
 import lombok.Data;
 import lombok.experimental.Accessors;
 

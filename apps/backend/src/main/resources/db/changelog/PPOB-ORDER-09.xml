@@ -10,7 +10,7 @@
           </not>
         </preConditions>
         <createTable tableName="orders">
-            <column name="id" type="UUID">
+            <column name="id" type="BIGINT">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="user_id" type="INT"/>

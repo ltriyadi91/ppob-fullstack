@@ -1,5 +1,6 @@
 package com.ggrmtest.ppob.infrastructure.persistence.entity;
 
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -8,6 +9,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
+
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -17,7 +21,7 @@ import lombok.experimental.Accessors;
 @Table(name = "products")
 @Accessors(chain = true)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class Product {
+public class Product implements Auditable {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
@@ -39,4 +43,9 @@ public class Product {
   private Double discountPercentage;
   private Boolean isDiscount;
   private Boolean isAvailable;
+
+  @Embedded
+  @EqualsAndHashCode.Include
+  @JsonUnwrapped
+  private AuditInfo auditInfo = new AuditInfo();
 }

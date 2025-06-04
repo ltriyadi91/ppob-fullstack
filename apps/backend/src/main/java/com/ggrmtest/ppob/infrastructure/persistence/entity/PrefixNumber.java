@@ -1,6 +1,9 @@
 package com.ggrmtest.ppob.infrastructure.persistence.entity;
 
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
+
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -17,7 +20,7 @@ import lombok.experimental.Accessors;
 @Table(name = "prefix_numbers")
 @Accessors(chain = true)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class PrefixNumber {
+public class PrefixNumber implements Auditable {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
@@ -30,4 +33,9 @@ public class PrefixNumber {
 
   @OneToOne(fetch = FetchType.LAZY)
   private Operator operator;
+
+  @Embedded
+  @EqualsAndHashCode.Include
+  @JsonUnwrapped
+  private AuditInfo auditInfo = new AuditInfo();
 }

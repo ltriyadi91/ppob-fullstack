@@ -20,4 +20,10 @@ public class TickerDTO {
       .setCategory(CategoryDTO.fromCategory(ticker.getCategory()))
       .setOperator(OperatorDTO.fromOperator(ticker.getOperator()));
   }
+
+  public Ticker toTicker(Ticker ticker) {
+    return ticker
+      .setId(tickerId)
+      .setDescription(message);
+  }
 }

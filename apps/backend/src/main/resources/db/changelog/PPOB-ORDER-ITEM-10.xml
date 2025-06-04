@@ -14,7 +14,7 @@
             <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="order_id" type="UUID"/>
+            <column name="order_id" type="INT"/>
             <column name="product_id" type="INT"/>
             <column name="quantity" type="INT"/>
             <column name="price" type="NUMERIC(19, 2)"/>

@@ -1,7 +1,9 @@
 package com.ggrmtest.ppob.infrastructure.persistence.entity;
 
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.ggrmtest.ppob.common.enumeration.Role;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -26,7 +28,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Table(name = "users")
 @Accessors(chain = true)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class User implements UserDetails {
+public class User implements UserDetails, Auditable {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
@@ -57,6 +59,11 @@ public class User implements UserDetails {
   @NotNull(message = "Please enter the password")
   //@Pattern(regexp = "[A-Za-z0-9!@#$%^&*_]{8,15}", message = "Password must be 8-15 characters in length and can include A-Z, a-z, 0-9, or special characters !@#$%^&*_")
   private String password;
+
+  @Embedded
+  @EqualsAndHashCode.Include
+  @JsonUnwrapped
+  private AuditInfo auditInfo = new AuditInfo();
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {

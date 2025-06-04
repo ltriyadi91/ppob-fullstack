@@ -14,6 +14,7 @@ public class CartDTO {
   private BigDecimal totalPrice;
   private Integer totalItem;
   private UserDetailDTO userDetail;
+  private String inputNumber;
   private List<CartItemDTO> cartItems;
 
   public static CartDTO fromCart(Cart cart) {

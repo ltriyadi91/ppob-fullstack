@@ -11,7 +11,6 @@ import com.ggrmtest.ppob.infrastructure.persistence.repository.TickerRepository;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -40,7 +39,9 @@ public class PPOBDetailQueryServiceImpl implements PPOBDetailQueryService {
       categoryDto.getCategoryId()
     );
 
-    List<Product> products = productRepository.findByCategoryGroupByOperator(categoryDto.getCategoryId());
+    List<Product> products = productRepository.findByCategoryGroupByOperator(
+      categoryDto.getCategoryId()
+    );
     List<Product> filteredProducts = new ArrayList<>();
 
     if (operatorId != null) {
@@ -87,7 +88,9 @@ public class PPOBDetailQueryServiceImpl implements PPOBDetailQueryService {
     var tickerDtos = tickers
       .stream()
       .map(ticker -> TickerDTO.fromTicker(ticker))
-      .filter(ticker -> ticker.getCategory().getCategoryId().equals(categoryDto.getCategoryId()))
+      .filter(ticker ->
+        ticker.getCategory().getCategoryId().equals(categoryDto.getCategoryId())
+      )
       .toList();
 
     var detailDto = new PPOBDetailDTO();

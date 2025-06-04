@@ -55,6 +55,18 @@ public class AuthenticationController {
     return ResponseEntity.ok(loginResponse);
   }
 
+  @PostMapping("/admin/login")
+  public ResponseEntity<LoginResponseDTO> authenticateAdmin(
+    @RequestBody UserLoginDTO adminDto
+  ) {
+    User authenticatedUser = authenticationService.userAdminAuthenticate(adminDto);
+    String jwtToken = jwtService.generateToken(authenticatedUser);
+    LoginResponseDTO loginResponse = new LoginResponseDTO()
+      .setToken(jwtToken)
+      .setExpiresIn(jwtService.getExpirationTime());
+    return ResponseEntity.ok(loginResponse);
+  }
+
   @GetMapping("/validate")
   public ResponseEntity<UserDetailDTO> validateToken() {
     Authentication authentication = SecurityContextHolder

@@ -1,33 +1,44 @@
 package com.ggrmtest.ppob.infrastructure.persistence.entity;
 
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.ggrmtest.ppob.common.enumeration.OrderStatus;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.util.UUID;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 import lombok.experimental.Accessors;
-import org.hibernate.annotations.GenericGenerator;
+import jakarta.persistence.PrePersist;
 
 @Entity
 @Data
 @Table(name = "orders")
 @Accessors(chain = true)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class Order {
+public class Order implements Auditable {
+
+  @PrePersist
+  public void prePersist() {
+    if (orderId == null) {
+      orderId = java.util.UUID.randomUUID();
+    }
+  }
 
   @Id
-  @GeneratedValue(generator = "uuid2")
-  @GenericGenerator(name = "uuid2", strategy = "uuid2")
-  @Column(columnDefinition = "BINARY(16)")
-  private UUID id;
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  @EqualsAndHashCode.Include
+  private Long id;
+
+  @Column(columnDefinition = "BINARY(16)", unique = true, nullable = false, updatable = false)
+  private UUID orderId;
 
   private BigDecimal totalAmount;
 
@@ -37,4 +48,9 @@ public class Order {
   @Enumerated(EnumType.STRING)
   @Column(name = "order_status")
   private OrderStatus status;
+
+  @Embedded
+  @EqualsAndHashCode.Include
+  @JsonUnwrapped
+  private AuditInfo auditInfo = new AuditInfo();
 }
