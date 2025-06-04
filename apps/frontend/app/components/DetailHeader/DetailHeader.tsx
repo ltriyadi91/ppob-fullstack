@@ -1,5 +1,6 @@
 "use client";
 import { useRouter } from 'next/navigation';
+import { IconArrowLeft } from '@tabler/icons-react';
 import React from 'react';
 
 interface DetailHeaderProps {
@@ -16,20 +17,7 @@ export function DetailHeader({ categoryName }: DetailHeaderProps) {
         className="text-gray-600 hover:text-gray-800 transition-colors duration-200"
         onClick={() => router.back()}
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-6 w-6"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M10 19l-7-7m0 0l7-7m-7 7h18"
-          />
-        </svg>
+        <IconArrowLeft className="h-6 w-6" />
       </button>
       <h1 className="text-lg font-semibold capitalize">{categoryName}</h1>
       <span className="w-4"></span>

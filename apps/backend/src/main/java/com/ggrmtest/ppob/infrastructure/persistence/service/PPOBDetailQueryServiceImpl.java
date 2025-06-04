@@ -11,6 +11,7 @@ import com.ggrmtest.ppob.infrastructure.persistence.repository.TickerRepository;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,7 +31,8 @@ public class PPOBDetailQueryServiceImpl implements PPOBDetailQueryService {
   @Override
   public PPOBDetailDTO findProductsByCategorySlug(
     String categorySlug,
-    String inputParam
+    String inputParam,
+    Long operatorId
   ) {
     var categoryDto = categoryQueryService.findCategoryBySlug(categorySlug);
 
@@ -38,7 +40,16 @@ public class PPOBDetailQueryServiceImpl implements PPOBDetailQueryService {
       categoryDto.getCategoryId()
     );
 
-    List<Product> products = new ArrayList<>();
+    List<Product> products = productRepository.findByCategoryGroupByOperator(categoryDto.getCategoryId());
+    List<Product> filteredProducts = new ArrayList<>();
+
+    if (operatorId != null) {
+      filteredProducts =
+        products
+          .stream()
+          .filter(product -> product.getOperator().getId().equals(operatorId))
+          .toList();
+    }
 
     if (!inputParam.isEmpty()) {
       var prefixNumber = prefixNumberRepository
@@ -47,10 +58,7 @@ public class PPOBDetailQueryServiceImpl implements PPOBDetailQueryService {
         .filter(p -> p.getPrefixNumber().contains(inputParam))
         .findFirst();
 
-      products =
-        productRepository.findByCategoryGroupByOperator(categoryDto.getCategoryId());
-
-      products =
+      filteredProducts =
         products
           .stream()
           .filter(product ->
@@ -63,9 +71,13 @@ public class PPOBDetailQueryServiceImpl implements PPOBDetailQueryService {
           .toList();
     }
 
-    var productDtos = products.stream().map(ProductDTO::fromEntity).toList();
+    var productDtos = filteredProducts.stream().map(ProductDTO::fromEntity).toList();
 
-    var operatorDtos = products
+    var productsForOperatorDtos = categoryDto.getIsPrefixNumberRequired()
+      ? filteredProducts
+      : products;
+
+    var operatorDtos = productsForOperatorDtos
       .stream()
       .map(product -> OperatorDTO.fromOperator(product.getOperator()))
       .collect(Collectors.toCollection(LinkedHashSet::new))
@@ -75,6 +87,7 @@ public class PPOBDetailQueryServiceImpl implements PPOBDetailQueryService {
     var tickerDtos = tickers
       .stream()
       .map(ticker -> TickerDTO.fromTicker(ticker))
+      .filter(ticker -> ticker.getCategory().getCategoryId().equals(categoryDto.getCategoryId()))
       .toList();
 
     var detailDto = new PPOBDetailDTO();

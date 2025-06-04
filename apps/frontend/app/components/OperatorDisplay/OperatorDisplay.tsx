@@ -10,7 +10,7 @@ const OperatorDisplay: React.FC<OperatorDisplayProps> = ({ categoryName, operato
   return (
     <>
       {categoryName ? (
-        <h2 className="text-lg font-semibold mb-4 flex items-center">
+        <h2 className="text-lg font-semibold my-4 flex items-center">
           Pilih {categoryName} :
           {operatorImageUrl && (
             <img

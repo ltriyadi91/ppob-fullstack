@@ -1,101 +1,80 @@
 'use client';
 import React, { useState, useEffect } from 'react';
+import { IconLoader, IconX } from '@tabler/icons-react';
+import { TextInput, ActionIcon, Box, Image } from '@mantine/core';
 
-interface PhoneNumberInputProps {
-  initialPhoneNumber: string;
-  onPhoneNumberChange: (number: string) => void;
+interface InputNumberInputProps {
+  initialNumber: string;
+  onNumberChange: (number: string) => void;
   isLoading?: boolean;
+  isFetching?: boolean;
+  isFetched?: boolean;
+  placeholder?: string;
+  label?: string;
+  elementId?: string;
+  operatorImage?: string;
 }
 
-const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
-  initialPhoneNumber,
-  onPhoneNumberChange,
+const InputClientNumber: React.FC<InputNumberInputProps> = ({
+  initialNumber,
+  onNumberChange,
   isLoading = false,
+  isFetching = false,
+  isFetched = false,
+  placeholder = 'Contoh: 081234567890',
+  label = 'Nomor Registrasi',
+  elementId = 'inputNumber',
+  operatorImage
 }) => {
-  const [localPhoneNumber, setLocalPhoneNumber] = useState(initialPhoneNumber);
+  const [localNumber, setLocalNumber] = useState(initialNumber);
 
-  // Sync initialPhoneNumber prop with local state if it changes from parent
+  // Sync initialNumber prop with local state if it changes from parent
   useEffect(() => {
-    setLocalPhoneNumber(initialPhoneNumber);
-  }, [initialPhoneNumber]);
+    setLocalNumber(initialNumber);
+  }, [initialNumber]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newNumber = e.target.value;
-    setLocalPhoneNumber(newNumber);
-    onPhoneNumberChange(newNumber);
+    setLocalNumber(newNumber);
+    onNumberChange(newNumber);
   };
 
   const handleClear = () => {
-    setLocalPhoneNumber('');
-    onPhoneNumberChange('');
+    setLocalNumber('');
+    onNumberChange('');
   };
 
   return (
-    <section className="bg-white p-4 mx-4 mt-4 rounded-lg shadow-sm">
-      <label
-        htmlFor="phoneNumber"
-        className="block text-sm font-medium text-gray-700 mb-2"
-      >
-        Nomor Handphone
-      </label>
-      <div className="relative">
-        <input
-          type="tel"
-          id="phoneNumber"
-          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm pr-10"
-          value={localPhoneNumber}
-          onChange={handleChange}
-          placeholder="e.g., 081234567890"
-        />
-        {isLoading ? (
-          <div className="absolute inset-y-0 right-0 pr-3 flex items-center text-red-500">
-            <svg
-              className="animate-spin h-5 w-5"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              ></circle>
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              ></path>
-            </svg>
-          </div>
-        ) : (
-          localPhoneNumber && (
-            <button
-              className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
-              onClick={handleClear}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
+    <section className="bg-white mt-4 rounded-lg shadow-sm">
+      <TextInput
+        id={elementId}
+        label={label}
+        type="tel"
+        value={localNumber}
+        onChange={handleChange}
+        placeholder={placeholder}
+        className="w-full"
+        leftSection={
+          operatorImage && isFetched && !isFetching && localNumber.length >= 3 ? (
+            <Box className="w-8 h-6 mx-2 py-2">
+              <Image src={operatorImage} alt="Operator" className="w-full h-full" />
+            </Box>
+          ) : null
+        }
+        rightSection={
+          isLoading ? (
+            <IconLoader size={20} className="text-red-500" />
+          ) : (
+            localNumber && (
+              <ActionIcon onClick={handleClear} variant="subtle" color="gray">
+                <IconX size={16} />
+              </ActionIcon>
+            )
           )
-        )}
-      </div>
+        }
+      />
     </section>
   );
 };
 
-export default PhoneNumberInput;
+export default InputClientNumber;

@@ -72,6 +72,7 @@ export function CategoryModal({
         categoryDescription: categoryData.data.categoryDescription,
         isActive: categoryData.data.isActive,
         isInputNumberRequired: categoryData.data.isInputNumberRequired,
+        isPrefixNumberRequired: categoryData.data.isPrefixNumberRequired,
       }
       form.setValues(data);
     }
@@ -177,6 +178,13 @@ export function CategoryModal({
               label="Requires Input Number"
               description="Does this category require an input number?"
               {...form.getInputProps('isInputNumberRequired', {
+                type: 'checkbox',
+              })}
+            />
+            <Switch
+              label="Requires Prefix Number"
+              description="Does this category require a prefix number?"
+              {...form.getInputProps('isPrefixNumberRequired', {
                 type: 'checkbox',
               })}
             />

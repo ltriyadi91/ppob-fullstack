@@ -17,7 +17,7 @@ const Ticker: React.FC<TickerProps> = ({
   }
 
   return (
-    <div className="bg-red-100 text-red-700 p-4 mx-4 mt-4 rounded-lg flex items-start justify-between text-sm shadow-sm">
+    <div className="bg-red-100 text-red-700 p-4 mt-4 rounded-lg flex items-start justify-between text-sm shadow-sm">
       <p>{tickerMessage}</p>
       <button
         className="ml-4 text-red-700 hover:text-red-900"

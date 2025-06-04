@@ -21,11 +21,14 @@ public class PPOBDetailController {
   @GetMapping("/ppob-detail/{slug}")
   public ResponseEntity<GeneralResponseDTO<PPOBDetailDTO>> getPPOBDetail(
     @PathVariable String slug,
-    @RequestParam(defaultValue = "") String inputNumber
+    @RequestParam(defaultValue = "") String inputNumber,
+    @RequestParam(defaultValue = "") String operatorId
   ) {
+    Long operatorIdLong = operatorId.isEmpty() ? null : Long.valueOf(operatorId);
     PPOBDetailDTO detail = ppobDetailQueryService.findProductsByCategorySlug(
       slug,
-      inputNumber
+      inputNumber,
+      operatorIdLong
     );
 
     var resp = new GeneralResponseDTO<PPOBDetailDTO>();

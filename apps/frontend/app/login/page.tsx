@@ -1,9 +1,9 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { IoArrowBack } from 'react-icons/io5'; // Assuming you have react-icons installed
+import { IoArrowBack } from 'react-icons/io5';
 import Link from 'next/link';
-import { useAuth } from '@/hooks/useAuth'; // Import the new hook
+import { useAuth } from '@/hooks/useAuth';
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');

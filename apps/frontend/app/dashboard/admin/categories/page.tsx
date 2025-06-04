@@ -31,6 +31,7 @@ export interface CategoryDTO {
   status?: 'ACTIVE' | 'INACTIVE';
   isActive?: boolean;
   isInputNumberRequired?: boolean;
+  isPrefixNumberRequired?: boolean;
 }
 
 export interface ApiResponse<T> {
@@ -212,33 +213,13 @@ export default function CategoriesPage() {
     mutationFn: async (values: CategoryDTO) => {
       const apiUrl = `${process.env.NEXT_PUBLIC_API_V1}/categories`;
 
-      // Prepare request body according to the API requirements
-      const requestBody: CategoryDTO = {
-        categoryId: values.categoryId,
-        categoryName: values.categoryName,
-        slug: values.slug,
-        imageUrl: values.imageUrl,
-        isActive: values.isActive,
-        isInputNumberRequired: values.isInputNumberRequired,
-      };
-      
-      // Add description if provided
-      if (values.categoryDescription) {
-        requestBody.categoryDescription = values.categoryDescription;
-      }
-
-      // Add category ID if we're updating
-      if (editingCategory) {
-        requestBody.categoryId = editingCategory.categoryId;
-      }
-
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(requestBody),
+        body: JSON.stringify(values),
       });
 
       if (!response.ok) {
