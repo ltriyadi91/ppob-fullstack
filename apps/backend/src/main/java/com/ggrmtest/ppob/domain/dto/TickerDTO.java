@@ -22,8 +22,6 @@ public class TickerDTO {
   }
 
   public Ticker toTicker(Ticker ticker) {
-    return ticker
-      .setId(tickerId)
-      .setDescription(message);
+    return ticker.setId(tickerId).setDescription(message);
   }
 }

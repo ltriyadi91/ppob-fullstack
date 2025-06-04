@@ -11,12 +11,12 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.util.UUID;
 import lombok.*;
 import lombok.experimental.Accessors;
-import jakarta.persistence.PrePersist;
 
 @Entity
 @Data
@@ -37,7 +37,12 @@ public class Order implements Auditable {
   @EqualsAndHashCode.Include
   private Long id;
 
-  @Column(columnDefinition = "BINARY(16)", unique = true, nullable = false, updatable = false)
+  @Column(
+    columnDefinition = "BINARY(16)",
+    unique = true,
+    nullable = false,
+    updatable = false
+  )
   private UUID orderId;
 
   private BigDecimal totalAmount;

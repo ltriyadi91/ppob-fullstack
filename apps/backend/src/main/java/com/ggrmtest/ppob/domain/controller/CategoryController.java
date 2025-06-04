@@ -12,6 +12,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -81,5 +82,16 @@ public class CategoryController {
 
     var resp = new GeneralResponseDTO<CategoryDTO>();
     return resp.ok(category);
+  }
+
+  @PreAuthorize("hasAuthority('ADMIN')")
+  @DeleteMapping("/{id}")
+  public ResponseEntity<GeneralResponseDTO<String>> deleteCategory(
+    @PathVariable Long id
+  ) {
+    categoryService.deleteCategory(id);
+
+    var resp = new GeneralResponseDTO<String>();
+    return resp.ok("Category deleted successfully");
   }
 }

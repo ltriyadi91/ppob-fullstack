@@ -1,7 +1,6 @@
 package com.ggrmtest.ppob.infrastructure.persistence.entity;
 
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;

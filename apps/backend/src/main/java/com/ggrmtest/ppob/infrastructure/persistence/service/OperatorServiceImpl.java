@@ -30,4 +30,9 @@ public class OperatorServiceImpl implements OperatorService {
     var savedOperator = operatorRepository.save(operatorDTO.toOperator(operator));
     return operatorDTO.setOperatorId(savedOperator.getId());
   }
+
+  @Override
+  public void deleteOperator(Long id) {
+    operatorRepository.deleteById(id);
+  }
 }

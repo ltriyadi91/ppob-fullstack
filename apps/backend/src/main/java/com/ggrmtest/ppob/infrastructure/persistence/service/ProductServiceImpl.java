@@ -48,4 +48,9 @@ public class ProductServiceImpl implements ProductService {
     var savedProduct = productRepository.save(productDTO.toEntity(product));
     return productDTO.setId(savedProduct.getId());
   }
+
+  @Override
+  public void deleteProduct(Long id) {
+    productRepository.deleteById(id);
+  }
 }
