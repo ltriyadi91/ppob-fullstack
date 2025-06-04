@@ -27,14 +27,14 @@ import {
 } from '@tabler/icons-react';
 import { useState } from 'react';
 import { ProductModal } from '@/components/Modals/ProductModal';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 import { useAuth } from '@/hooks/useAuth';
 import { CategoryDTO } from '../categories/page';
 
 // TypeScript interface matching ProductDTO
 export interface ProductDTO {
-  id: number;
+  id: number | null;
   operatorId: number;
   categoryId: number;
   categoryName: string;
@@ -144,13 +144,14 @@ export const api = {
     const data = await response.json();
     return data.data;
   },
-  deleteProduct: async (id: number) => {
-    // Note: This endpoint is not available in the controller, but we're including it for completeness
-    // In a real implementation, you would need to add this endpoint to the backend
+  deleteProduct: async (id: number, token: string | null) => {
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_API_V1}/products/${id}`,
       {
         method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       }
     );
     if (!response.ok) {
@@ -164,7 +165,6 @@ export const api = {
 export default function ProductsPage() {
   const pageSize = 10; // Fixed page size
 
-  const queryClient = useQueryClient();
   const [modalOpened, setModalOpened] = useState(false);
   const [editingProduct, setEditingProduct] = useState<ProductDTO | null>(null);
 
@@ -247,9 +247,9 @@ export default function ProductsPage() {
 
   // Delete product mutation
   const deleteProductMutation = useMutation({
-    mutationFn: (id: number) => api.deleteProduct(id),
+    mutationFn: (id: number) => api.deleteProduct(id, token),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['products'] });
+      refetchProducts();
       notifications.show({
         title: 'Success',
         message: 'Product deleted successfully',
@@ -275,7 +275,8 @@ export default function ProductsPage() {
   };
 
   // Handle product deletion
-  const handleDelete = (id: number) => {
+  const handleDelete = (id: number | null) => {
+    if (!id) return;
     deleteProductMutation.mutate(id);
   };
 

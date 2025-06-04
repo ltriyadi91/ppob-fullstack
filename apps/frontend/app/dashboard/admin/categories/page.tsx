@@ -11,9 +11,17 @@ import {
   TextInput,
   Badge,
   ActionIcon,
+  Menu,
+  rem,
 } from '@mantine/core';
 import { DataTable, DataTableColumn } from 'mantine-datatable';
-import { IconSearch, IconEdit, IconDotsVertical } from '@tabler/icons-react';
+import { notifications } from '@mantine/notifications';
+import {
+  IconSearch,
+  IconEdit,
+  IconDots,
+  IconTrash,
+} from '@tabler/icons-react';
 import { CategoryModal } from '@/components/Modals/CategoryModal';
 import { useAuth } from '@/hooks/useAuth';
 import { useQuery, useMutation } from '@tanstack/react-query';
@@ -77,7 +85,9 @@ export default function CategoriesPage() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [modalOpened, setModalOpened] = useState(false);
-  const [editingCategory, setEditingCategory] = useState<CategoryDTO | null>(null);
+  const [editingCategory, setEditingCategory] = useState<CategoryDTO | null>(
+    null
+  );
 
   const { token } = useAuth({
     isDashboard: true,
@@ -96,24 +106,30 @@ export default function CategoriesPage() {
       // Build the query parameters for the API request
       const params = new URLSearchParams();
       if (searchTerm) params.append('searchTerm', searchTerm);
-      
+
       // API uses 0-based indexing
       params.append('page', (page - 1).toString());
 
       params.append('size', pageSize.toString());
       params.append('sortBy', 'categoryName');
       params.append('sortDir', 'asc');
-      
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_V1}/categories/paginated?${params.toString()}`);
-      
+
+      const response = await fetch(
+        `${
+          process.env.NEXT_PUBLIC_API_V1
+        }/categories/paginated?${params.toString()}`
+      );
+
       if (!response.ok) throw new Error('Failed to fetch categories');
-      
+
       const apiResponse = await response.json();
-      
+
       if (apiResponse.statusCode !== '00') {
-        throw new Error(apiResponse.statusDescription || 'Failed to fetch categories');
+        throw new Error(
+          apiResponse.statusDescription || 'Failed to fetch categories'
+        );
       }
-      
+
       return apiResponse;
     },
   });
@@ -125,6 +141,90 @@ export default function CategoriesPage() {
     },
     delay: 1000,
   });
+
+  // Handle search
+  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.currentTarget.value;
+    setSearchTerm(value);
+    handleChangeForm();
+  };
+
+  // Mutation for creating/updating categories
+  const categoryMutation = useMutation({
+    mutationFn: async (values: CategoryDTO) => {
+      const apiUrl = `${process.env.NEXT_PUBLIC_API_V1}/categories`;
+
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(values),
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          `Failed to ${editingCategory ? 'update' : 'create'} category: ${
+            response.status
+          }`
+        );
+      }
+
+      const apiResponse = await response.json();
+
+      return apiResponse.data;
+    },
+    onSuccess: () => {
+      // Close modal and refresh data
+      setModalOpened(false);
+      refetch();
+    },
+    onError: (error) => {
+      console.error('Error saving category:', error);
+    },
+  });
+
+  const deleteCategoryMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const apiUrl = `${process.env.NEXT_PUBLIC_API_V1}/categories/${id}`;
+
+      const response = await fetch(apiUrl, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to delete category: ${response.status}`);
+      }
+    },
+    onSuccess: () => {
+      refetch();
+      notifications.show({
+        title: 'Success',
+        message: 'Category deleted successfully',
+        color: 'green',
+      });
+    },
+    onError: (error: Error) => {
+      notifications.show({
+        title: 'Error',
+        message: error.message || 'Failed to delete category',
+        color: 'red',
+      });
+    },
+  });
+
+  // Handle form submission
+  const handleSubmit = (values: CategoryDTO) => {
+    categoryMutation.mutate(values);
+  };
+
+  const handleDelete = (id: number) => {
+    deleteCategoryMutation.mutate(id);
+  };
 
   // Define columns for the DataTable
   const columns: DataTableColumn<CategoryDTO>[] = [
@@ -191,63 +291,28 @@ export default function CategoriesPage() {
           >
             <IconEdit size={16} />
           </ActionIcon>
-          <ActionIcon variant="subtle">
-            <IconDotsVertical size={16} />
-          </ActionIcon>
+          <Menu shadow="md" width={200} position="bottom-end">
+            <Menu.Target>
+              <ActionIcon variant="subtle" color="gray" size="sm">
+                <IconDots style={{ width: rem(16) }} stroke={1.5} />
+              </ActionIcon>
+            </Menu.Target>
+            <Menu.Dropdown>
+              <Menu.Item
+                leftSection={<IconTrash size={14} />}
+                color="red"
+                onClick={() => handleDelete(category.categoryId as number)}
+              >
+                Delete
+              </Menu.Item>
+            </Menu.Dropdown>
+          </Menu>
         </Group>
       ),
       width: 100,
       textAlign: 'center',
     },
   ];
-
-  // Handle search
-  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.currentTarget.value;
-    setSearchTerm(value);
-    handleChangeForm();
-  };
-
-  // Mutation for creating/updating categories
-  const categoryMutation = useMutation({
-    mutationFn: async (values: CategoryDTO) => {
-      const apiUrl = `${process.env.NEXT_PUBLIC_API_V1}/categories`;
-
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(values),
-      });
-
-      if (!response.ok) {
-        throw new Error(
-          `Failed to ${editingCategory ? 'update' : 'create'} category: ${
-            response.status
-          }`
-        );
-      }
-      
-      const apiResponse = await response.json();
-
-      return apiResponse.data;
-    },
-    onSuccess: () => {
-      // Close modal and refresh data
-      setModalOpened(false);
-      refetch();
-    },
-    onError: (error) => {
-      console.error('Error saving category:', error);
-    }
-  });
-
-  // Handle form submission
-  const handleSubmit = (values: CategoryDTO) => {
-    categoryMutation.mutate(values);
-  };
 
   return (
     <>
@@ -275,7 +340,8 @@ export default function CategoriesPage() {
 
             {isError && (
               <Alert title="Error" color="red">
-                {(error as Error)?.message || 'An error occurred while fetching data'}
+                {(error as Error)?.message ||
+                  'An error occurred while fetching data'}
               </Alert>
             )}
 
@@ -292,7 +358,9 @@ export default function CategoriesPage() {
               page={page}
               onPageChange={setPage}
               onRecordsPerPageChange={setPageSize}
-              paginationText={({ from, to, totalRecords }) => `${from}-${to} of ${totalRecords}`}
+              paginationText={({ from, to, totalRecords }) =>
+                `${from}-${to} of ${totalRecords}`
+              }
               fetching={isLoading}
               recordsPerPageOptions={[10, 25, 50]}
               noRecordsText="No categories found"

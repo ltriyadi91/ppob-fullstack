@@ -120,8 +120,13 @@ export function ProductModal({ opened, onClose, productId, onSubmit }: ProductMo
     }
   }, [productData]);
 
+  const handleClose = () => {
+    form.setValues(defaultValues);
+    onClose();
+  }
+
   return (
-    <Modal opened={opened} onClose={onClose} title={productId ? 'Edit Product' : 'Add Product'} size="md">
+    <Modal opened={opened} onClose={handleClose} title={productId ? 'Edit Product' : 'Add Product'} size="md">
       {productLoading ? (
         <Stack align="center" py="xl">
           <Loader size="md" />

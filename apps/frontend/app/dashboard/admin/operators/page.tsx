@@ -24,6 +24,7 @@ import {
   IconSearch,
   IconEdit,
 } from '@tabler/icons-react';
+import { notifications } from '@mantine/notifications';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/useAuth';
 import useDebounceInput from '@/hooks/useDebounceInput';
@@ -141,6 +142,94 @@ export default function OperatorsPage() {
     delay: 1000,
   });
 
+  // Handle search
+  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.currentTarget.value;
+    setSearchTerm(value);
+    handleChangeForm();
+  };
+
+  // Mutation for creating/updating operators
+  const operatorMutation = useMutation({
+    mutationFn: async (values: OperatorDTO) => {
+      const apiUrl = `${process.env.NEXT_PUBLIC_API_V1}/operators`;
+
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(values),
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          `Failed to ${editingOperator ? 'update' : 'create'} operator: ${
+            response.status
+          }`
+        );
+      }
+
+      const apiResponse = await response.json();
+
+      return apiResponse.data;
+    },
+    onSuccess: () => {
+      // Close modal and refresh data
+      setModalOpened(false);
+      refetch();
+    },
+    onError: (error) => {
+      console.error('Error saving operator:', error);
+    },
+  });
+
+  const deleteOperatorMutation = useMutation({
+    mutationFn: async (id: number) => {
+      console.log(id);
+      const apiUrl = `${process.env.NEXT_PUBLIC_API_V1}/operators/${id}`;
+
+      const response = await fetch(apiUrl, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to delete operator: ${response.statusText}`);
+      }
+    },
+    onSuccess: () => {
+      refetch();
+      notifications.show({
+        title: 'Success',
+        message: 'Operator deleted successfully',
+        color: 'green',
+      });
+    },
+    onError: (error: Error) => {
+      notifications.show({
+        title: 'Error',
+        message: error.message || 'Failed to delete operator',
+        color: 'red',
+      });
+    },
+  });
+
+  // Handle form submission
+  const handleSubmit = (values: OperatorDTO) => {
+    operatorMutation.mutate(values);
+  };
+
+  // Handle delete
+  const handleDelete = (operatorId: number) => {
+    if (confirm('Are you sure you want to delete this operator?')) {
+      deleteOperatorMutation.mutate(operatorId);
+    }
+  };
+
   // Define columns for the DataTable
   const columns: DataTableColumn<OperatorDTO>[] = [
     {
@@ -219,81 +308,6 @@ export default function OperatorsPage() {
       textAlign: 'center',
     },
   ];
-
-  // Handle search
-  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.currentTarget.value;
-    setSearchTerm(value);
-    handleChangeForm();
-  };
-
-  // Mutation for creating/updating operators
-  const operatorMutation = useMutation({
-    mutationFn: async (values: OperatorDTO) => {
-      const apiUrl = `${process.env.NEXT_PUBLIC_API_V1}/operators`;
-
-      // Prepare request body according to the API requirements
-      const requestBody: OperatorDTO = {
-        operatorId: values.operatorId,
-        operatorName: values.operatorName,
-        operatorDescription: values.operatorDescription,
-        slug: values.slug,
-        imageUrl: values.imageUrl,
-        isActive: values.isActive,
-      };
-
-      // Add operator ID if we're updating
-      if (editingOperator) {
-        requestBody.operatorId = editingOperator.operatorId;
-      }
-
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(requestBody),
-      });
-
-      if (!response.ok) {
-        throw new Error(
-          `Failed to ${editingOperator ? 'update' : 'create'} operator: ${
-            response.status
-          }`
-        );
-      }
-
-      const apiResponse = await response.json();
-
-      return apiResponse.data;
-    },
-    onSuccess: () => {
-      // Close modal and refresh data
-      setModalOpened(false);
-      refetch();
-    },
-    onError: (error) => {
-      console.error('Error saving operator:', error);
-    },
-  });
-
-  // Handle form submission
-  const handleSubmit = (values: OperatorDTO) => {
-    operatorMutation.mutate(values);
-  };
-
-  // Handle delete
-  const handleDelete = (operatorId: number) => {
-    if (confirm('Are you sure you want to delete this operator?')) {
-      // Implement delete mutation similar to categories page
-      // For now, just log and refresh
-      console.log('Deleting operator:', operatorId);
-      // In a real implementation, you would call a delete API endpoint
-      // and then refetch the data
-      refetch();
-    }
-  };
 
   return (
     <>
