@@ -113,6 +113,7 @@ public class OrderServiceImpl implements OrderService {
 
     // Create order
     var order = new Order();
+    order.setOrderId(null);
     order.setUser(user);
     order.setTotalAmount(finalPrice);
     order.setStatus(OrderStatus.PENDING);
@@ -124,6 +125,7 @@ public class OrderServiceImpl implements OrderService {
     orderItem.setQuantity(1);
     orderItem.setPrice(finalPrice);
     orderItem.setOrder(order);
+    orderItem.setInputNumber(directOrderDTO.getInputNumber());
     orderItemRepository.save(orderItem);
 
     var orderDTO = OrderDTO.fromOrder(order);

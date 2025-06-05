@@ -47,7 +47,7 @@ public class OperatorQueryServiceImpl implements OperatorQueryService {
     Pageable pageable
   ) {
     // Get all operators first
-    List<Operator> allOperators = operatorRepository.findAll();
+    List<Operator> allOperators = operatorRepository.findAllByOrderByIdAsc();
 
     // Filter by search term if provided
     List<Operator> filteredOperators;

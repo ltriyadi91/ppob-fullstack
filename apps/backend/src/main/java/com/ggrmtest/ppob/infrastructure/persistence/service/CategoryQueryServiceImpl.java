@@ -56,7 +56,7 @@ public class CategoryQueryServiceImpl implements CategoryQueryService {
     Pageable pageable
   ) {
     // Get all categories first
-    List<Category> allCategories = categoryRepository.findAll();
+    List<Category> allCategories = categoryRepository.findAllByOrderByIdAsc();
 
     // Filter by search term if provided
     List<Category> filteredCategories;

@@ -1,11 +1,15 @@
 package com.ggrmtest.ppob.domain.controller;
 
+import com.ggrmtest.ppob.common.dto.GeneralResponseDTO;
 import com.ggrmtest.ppob.domain.dto.DirectOrderDTO;
 import com.ggrmtest.ppob.domain.dto.OrderDTO;
 import com.ggrmtest.ppob.infrastructure.persistence.service.AuthenticationService;
 import com.ggrmtest.ppob.infrastructure.persistence.service.OrderQueryService;
 import com.ggrmtest.ppob.infrastructure.persistence.service.OrderService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -15,6 +19,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RequestMapping(value = "/api/v1/orders")
@@ -25,6 +30,29 @@ public class CustomerOrderController {
   private final OrderQueryService orderQueryService;
   private final OrderService orderService;
   private final AuthenticationService authService;
+
+  @PreAuthorize("hasAuthority('ADMIN')")
+  @GetMapping("/paginated")
+  public ResponseEntity<GeneralResponseDTO<Page<OrderDTO>>> searchOrders(
+    @RequestParam(required = false) String searchTerm,
+    @RequestParam(defaultValue = "0") int page,
+    @RequestParam(defaultValue = "10") int size,
+    @RequestParam(defaultValue = "orderId") String sortBy,
+    @RequestParam(defaultValue = "asc") String sortDir
+  ) {
+    Sort.Direction direction = sortDir.equalsIgnoreCase("desc")
+      ? Sort.Direction.DESC
+      : Sort.Direction.ASC;
+    PageRequest pageRequest = PageRequest.of(page, size, Sort.by(direction, sortBy));
+
+    Page<OrderDTO> orders = orderQueryService.findAllPaginatedOrders(
+      searchTerm,
+      pageRequest
+    );
+
+    var resp = new GeneralResponseDTO<Page<OrderDTO>>();
+    return resp.ok(orders);
+  }
 
   @GetMapping
   public ResponseEntity<OrderDTO> getOrder() {

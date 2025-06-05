@@ -28,7 +28,7 @@ public class Order implements Auditable {
   @PrePersist
   public void prePersist() {
     if (orderId == null) {
-      orderId = java.util.UUID.randomUUID();
+      orderId = UUID.randomUUID();
     }
   }
 
