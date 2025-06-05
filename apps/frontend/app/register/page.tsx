@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useForm } from '@mantine/form';
 import {
@@ -57,16 +57,19 @@ export default function RegisterPage() {
     setError(null);
     setSuccess(null);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_V1}/auth/customer/signup`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          username: values.username,
-          firstName: values.firstName,
-          lastName: values.lastName,
-          password: values.password,
-        }),
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_V1}/auth/customer/signup`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            username: values.username,
+            firstName: values.firstName,
+            lastName: values.lastName,
+            password: values.password,
+          }),
+        }
+      );
       if (!res.ok) {
         const data = await res.json();
         throw new Error(data?.message || 'Registration failed');
@@ -85,7 +88,7 @@ export default function RegisterPage() {
     <Group justify="center" align="center" style={{ minHeight: '100vh' }}>
       <Paper shadow="md" p="xl" radius="md" w={400}>
         <Title order={2} mb="md">
-          Register as Customer
+          Customer Register
         </Title>
         {error && (
           <Alert color="red" icon={<IconAlertCircle size={16} />} mb="md">
@@ -134,7 +137,12 @@ export default function RegisterPage() {
               {...form.getInputProps('confirmPassword')}
               required
             />
-            <Button type="submit" loading={loading} fullWidth mt="md">
+            <Button
+              type="submit"
+              loading={loading}
+              className="!bg-red-500 hover:!bg-red-600"
+              mt="md"
+            >
               Register
             </Button>
           </Stack>

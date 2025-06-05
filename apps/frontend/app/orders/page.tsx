@@ -1,5 +1,4 @@
 'use client';
-
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button, Loader } from '@mantine/core';
@@ -50,7 +49,6 @@ export default function OrderPage() {
   // Fetch order data from API
   useEffect(() => {
     async function fetchOrder() {
-      console.log(token);
       try {
         const response = await fetch(
           `${process.env.NEXT_PUBLIC_API_V1}/orders`,

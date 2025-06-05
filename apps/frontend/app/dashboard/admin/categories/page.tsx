@@ -327,7 +327,7 @@ export default function CategoriesPage() {
                   setModalOpened(true);
                 }}
               >
-                Add Category
+                + Add Category
               </Button>
             </Group>
 

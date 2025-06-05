@@ -11,13 +11,14 @@ import {
   Group,
   Box,
   Burger,
+  Button
 } from '@mantine/core';
 import {
   IconCategory,
   IconUsers,
   IconBox,
   IconShoppingCart,
-
+  IconLogout
 } from '@tabler/icons-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -65,7 +66,7 @@ const navItems = [
 export function Sidebar({ children }: { children: React.ReactNode }) {
   const [opened, setOpened] = useState(false);
   const pathname = usePathname();
-  const { userProfile } = useAuth({ isDashboard: true });
+  const { userProfile, logout } = useAuth({ isDashboard: true, redirectAfterLogout: '/dashboard/login' });
 
   return (
     <AppShell
@@ -93,13 +94,13 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
           <Stack>
             {/* User Profile Section */}
             <Box py="md">
-              <Group>
+              <Group justify="space-between" align="flex-start" className="w-full">
                 <Avatar
                   src="https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-8.png"
                   size="md"
                   radius="xl"
                 />
-                <Box>
+                <Box className="w-full">
                   <Text fw={500} size="sm">
                     {userProfile?.firstName} {userProfile?.lastName}
                   </Text>
@@ -107,6 +108,15 @@ export function Sidebar({ children }: { children: React.ReactNode }) {
                     {userProfile?.role}
                   </Text>
                 </Box>
+                <Button
+                  variant="subtle"
+                  color="red"
+                  size="compact-sm"
+                  leftSection={<IconLogout size={16} />}
+                  onClick={logout}
+                >
+                  Logout
+                </Button>
               </Group>
             </Box>
 

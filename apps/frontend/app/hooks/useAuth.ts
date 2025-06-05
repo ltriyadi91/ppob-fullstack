@@ -31,27 +31,22 @@ export function useAuth({
   redirectAfterLogout = '/pulsa',
   isDashboard = false,
 }: AuthInput) {
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const storedToken = Cookies.get(isDashboard ? 'dashboard_token' : 'token') || null;
+  console.log({ storedToken })
+
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [userProfileCalled, setUserProfileCalled] = useState<boolean>(false);
 
-  const [token, setToken] = useState<string | null>(null);
+  const [token, setToken] = useState<string | null>(storedToken || null);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
-    const storedToken = Cookies.get(isDashboard ? 'dashboard_token' : 'token');
     if (storedToken) {
-      setToken(storedToken);
-    }
-    setIsLoading(false);
-  }, []);
-
-  useEffect(() => {
-    if (token) {
       fetchUser();
     }
-  }, [token]);
+  }, []);
 
   const fetchUser = async () => {
     try {
@@ -69,6 +64,7 @@ export function useAuth({
       }
     } catch (err) {
       console.warn('Error fetching user profile:', err);
+      logout();
     } finally {
       setUserProfileCalled(true);
     }
@@ -119,7 +115,7 @@ export function useAuth({
   };
 
   return {
-    token,
+    token: token || storedToken,
     userProfile,
     userProfileCalled,
     isLoading,

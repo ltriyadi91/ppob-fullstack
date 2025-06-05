@@ -10,7 +10,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const router = useRouter();
   const { login, isLoading, error, userProfile, userProfileCalled } = useAuth({
-    redirectPath: '/pulsa',
+    redirectPath: '/',
   });
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -20,7 +20,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (userProfile && userProfileCalled) {
-      router.push('/pulsa');
+      router.push('/');
     }
   }, [userProfile, userProfileCalled]);
 

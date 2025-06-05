@@ -2,8 +2,8 @@
 import { Sidebar } from '@/components/DashboardSidebar/Sidebar';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useEffect } from 'react';
 import 'mantine-datatable/styles.layer.css'
 
 export default function RootLayout({
@@ -13,15 +13,20 @@ export default function RootLayout({
 }) {
   const queryClient = new QueryClient();
   const router = useRouter();
-  const { userProfile, userProfileCalled } = useAuth({
+  const { userProfile, userProfileCalled, token } = useAuth({
     isDashboard: true,
+    redirectAfterLogout: '/dashboard/login',
   });
 
+  const isAdminUserUnloggedIn = !userProfileCalled && !token;
+  const isAdminUserSessionExpired = (!userProfile && userProfileCalled)
+
+
   useEffect(() => {
-    if (!userProfile && userProfileCalled) {
+    if (isAdminUserSessionExpired || isAdminUserUnloggedIn) {
       router.push('/dashboard/login');
     }
-  }, [userProfile, userProfileCalled]);
+  }, [isAdminUserSessionExpired, isAdminUserUnloggedIn]);
 
   return (
     <QueryClientProvider client={queryClient}>

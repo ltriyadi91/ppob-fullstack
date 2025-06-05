@@ -110,14 +110,7 @@ export default function OperatorsPage() {
       params.append('sortDir', 'asc');
 
       const response = await fetch(
-        `${
-          process.env.NEXT_PUBLIC_API_V1
-        }/operators/paginated?${params.toString()}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        `${process.env.NEXT_PUBLIC_API_V1}/operators/paginated?${params.toString()}`
       );
 
       if (!response.ok) throw new Error('Failed to fetch operators');
@@ -187,7 +180,6 @@ export default function OperatorsPage() {
 
   const deleteOperatorMutation = useMutation({
     mutationFn: async (id: number) => {
-      console.log(id);
       const apiUrl = `${process.env.NEXT_PUBLIC_API_V1}/operators/${id}`;
 
       const response = await fetch(apiUrl, {
@@ -225,9 +217,7 @@ export default function OperatorsPage() {
 
   // Handle delete
   const handleDelete = (operatorId: number) => {
-    if (confirm('Are you sure you want to delete this operator?')) {
-      deleteOperatorMutation.mutate(operatorId);
-    }
+    deleteOperatorMutation.mutate(operatorId);
   };
 
   // Define columns for the DataTable

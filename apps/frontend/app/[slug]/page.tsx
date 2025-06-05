@@ -153,7 +153,6 @@ export default function DetailPage() {
       router.push('/orders');
     },
     onError: (error: Error) => {
-      console.log({error});
       notifications.show({
         title: 'Order Failed',
         message: error.message || 'Failed to place your order. Please try again.',

@@ -1,162 +1,190 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import {
-  Table,
-  Paper,
-  Title,
-  Stack,
-  Group,
-  Text,
-  Button,
-  Collapse,
-  Badge,
-} from "@mantine/core";
-import { IconChevronDown, IconChevronUp } from "@tabler/icons-react";
+import { useState } from 'react';
+import { TextInput, Stack, Group, Box, Badge } from '@mantine/core';
+import { DataTable, DataTableSortStatus } from 'mantine-datatable';
+import { useQuery } from '@tanstack/react-query';
+import { useAuth } from '@/hooks/useAuth';
 
-// TypeScript interfaces matching backend DTOs
-interface OrderItemDTO {
+interface Product {
+  id: number;
+  productName: string;
+  operatorName: string;
+  categoryName: string;
+}
+
+interface OrderItem {
   orderItemId: number;
   productId: number;
   quantity: number;
+  inputNumber: string | null;
   price: number;
-  product: {
-    name: string;
-    description?: string;
+  product: Product;
+}
+
+interface Order {
+  orderId: string;
+  userId: number;
+  totalAmount: number;
+  status: string;
+  createdAt: string;
+  orderItems: OrderItem[];
+}
+
+interface PaginatedResponse {
+  data: {
+    content: Order[];
+    totalElements: number;
+    totalPages: number;
+    size: number;
+    number: number;
   };
 }
 
-interface OrderDTO {
-  orderId: string;
-  userLastName: string;
-  totalAmount: number;
-  orderItems: OrderItemDTO[];
-}
+export default function OrderPage() {
+  const { token } = useAuth({ isDashboard: true });
+  const [page, setPage] = useState(1);
+  const [pageSize] = useState(10);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortBy, setSortBy] = useState<{ field: string; direction: 'asc' | 'desc' }>({ 
+    field: 'orderId', 
+    direction: 'asc' 
+  });
 
-// Mock data
-const mockOrders: OrderDTO[] = [
-  {
-    orderId: "1",
-    userLastName: "Smith",
-    totalAmount: 150000,
-    orderItems: [
-      {
-        orderItemId: 101,
-        productId: 1,
-        quantity: 2,
-        price: 50000,
-        product: { name: "Pulsa Telkomsel 50K" },
-      },
-      {
-        orderItemId: 102,
-        productId: 2,
-        quantity: 1,
-        price: 50000,
-        product: { name: "Pulsa Indosat 50K" },
-      },
-    ],
-  },
-  {
-    orderId: "2",
-    userLastName: "Anderson",
-    totalAmount: 100000,
-    orderItems: [
-      {
-        orderItemId: 201,
-        productId: 3,
-        quantity: 1,
-        price: 100000,
-        product: { name: "Data XL 100GB" },
-      },
-    ],
-  },
-];
+  const { data, isLoading, error } = useQuery<PaginatedResponse>({
+    queryKey: ['orders', page, pageSize, searchTerm, sortBy, token],
+    queryFn: async () => {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_V1}/orders/paginated?` +
+        `page=${page - 1}&` +
+        `size=${pageSize}&` +
+        `sortBy=${sortBy.field}&` +
+        `sortDir=${sortBy.direction}` +
+        (searchTerm ? `&searchTerm=${searchTerm}` : ''),
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-export default function OrdersPage() {
-  const [expanded, setExpanded] = useState<string | null>(null);
+      if (!response.ok) {
+        throw new Error('Failed to fetch orders');
+      }
+
+      return response.json();
+    },
+    enabled: !!token,
+  });
+
+  const handleSearch = (value: string) => {
+    setSearchTerm(value);
+    setPage(1);
+  };
+
+  const handleSortStatusChange = ({ columnAccessor, direction }: DataTableSortStatus<Order>) => {
+    setSortBy({ 
+      field: columnAccessor as string, 
+      direction: direction as 'asc' | 'desc' 
+    });
+  };
 
   return (
-    <Stack gap="lg">
-      <Group justify="space-between" align="center">
-        <Title order={2}>Orders</Title>
-      </Group>
-      <Paper p="md" withBorder>
-        <Table highlightOnHover>
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th />
-              <Table.Th>Order ID</Table.Th>
-              <Table.Th>User</Table.Th>
-              <Table.Th>Total Amount</Table.Th>
-              <Table.Th>Items</Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {mockOrders.map((order) => (
-              <>
-                <Table.Tr key={order.orderId}>
-                  <Table.Td>
-                    <Button
-                      variant="subtle"
-                      size="xs"
-                      onClick={() =>
-                        setExpanded(expanded === order.orderId ? null : order.orderId)
-                      }
-                      leftSection={
-                        expanded === order.orderId ? (
-                          <IconChevronUp size={16} />
-                        ) : (
-                          <IconChevronDown size={16} />
-                        )
-                      }
-                    >
-                      {expanded === order.orderId ? "Hide" : "Show"}
-                    </Button>
-                  </Table.Td>
-                  <Table.Td>{order.orderId}</Table.Td>
-                  <Table.Td>{order.userLastName}</Table.Td>
-                  <Table.Td>
-                    <Text fw={500}>
-                      Rp {order.totalAmount.toLocaleString("id-ID")}
-                    </Text>
-                  </Table.Td>
-                  <Table.Td>
-                    <Badge color="blue">{order.orderItems.length} items</Badge>
-                  </Table.Td>
-                </Table.Tr>
-                <Table.Tr>
-                  <Table.Td colSpan={5} style={{ padding: 0, border: 0 }}>
-                    <Collapse in={expanded === order.orderId}>
-                      <Paper p="md" radius="md" withBorder shadow="xs" mt="xs">
-                        <Table>
-                          <Table.Thead>
-                            <Table.Tr>
-                              <Table.Th>Product</Table.Th>
-                              <Table.Th>Quantity</Table.Th>
-                              <Table.Th>Price</Table.Th>
-                            </Table.Tr>
-                          </Table.Thead>
-                          <Table.Tbody>
-                            {order.orderItems.map((item) => (
-                              <Table.Tr key={item.orderItemId}>
-                                <Table.Td>{item.product.name}</Table.Td>
-                                <Table.Td>{item.quantity}</Table.Td>
-                                <Table.Td>
-                                  Rp {item.price.toLocaleString("id-ID")}
-                                </Table.Td>
-                              </Table.Tr>
-                            ))}
-                          </Table.Tbody>
-                        </Table>
-                      </Paper>
-                    </Collapse>
-                  </Table.Td>
-                </Table.Tr>
-              </>
-            ))}
-          </Table.Tbody>
-        </Table>
-      </Paper>
-    </Stack>
+    <div className="mx-auto p-4">
+      <div className="mb-4">
+        <TextInput
+          placeholder="Search orders..."
+          value={searchTerm}
+          onChange={(e) => handleSearch(e.currentTarget.value)}
+          style={{ width: '300px' }}
+        />
+      </div>
+
+      <DataTable
+        withTableBorder
+        borderRadius="sm"
+        striped
+        highlightOnHover
+        records={data?.data.content || []}
+        columns={[
+          {
+            accessor: 'orderId',
+            title: 'Order ID',
+            sortable: true,
+          },
+          {
+            accessor: 'totalAmount',
+            title: 'Total Amount',
+            render: ({ totalAmount }) => 
+              `Rp${totalAmount.toLocaleString('id-ID')}`,
+            sortable: true,
+          },
+          {
+            accessor: 'status',
+            title: 'Status',
+            sortable: true,
+            render: ({ status }) => {
+              const statusConfig = {
+                PENDING: { color: 'gray', label: 'Pending' },
+                PAID: { color: 'green', label: 'Paid' },
+                CANCELLED: { color: 'red', label: 'Cancelled' },
+              };
+              const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.PENDING;
+              
+              return (
+                <Badge color={config.color} variant="light">
+                  {config.label}
+                </Badge>
+              );
+            },
+          },
+          {
+            accessor: 'createdAt',
+            title: 'Created At',
+            render: ({ createdAt }) => createdAt,
+            sortable: true,
+          },
+
+        ]}
+        totalRecords={data?.data.totalElements || 0}
+        recordsPerPage={pageSize}
+        page={page}
+        onPageChange={setPage}
+        sortStatus={{
+          columnAccessor: sortBy.field,
+          direction: sortBy.direction,
+        }}
+        onSortStatusChange={handleSortStatusChange}
+        fetching={isLoading}
+        loaderBackgroundBlur={2}
+        rowExpansion={{
+          content: ({ record }) => (
+            <Stack p="xs" gap="xs">
+              <Group gap="xs">
+                <Box fw={500}>Order Items:</Box>
+              </Group>
+              {record.orderItems?.map((item) => (
+                <Group key={item.orderItemId} gap="xs">
+                  <Box className="text-sm">
+                    <span className="font-medium">{item.product.operatorName}</span> -{' '}
+                    <span>{item.product.productName}</span>
+                    <span className="text-gray-600"> ({item.quantity}x)</span>
+                    <span className="ml-2 text-gray-600">
+                      Rp{item.price.toLocaleString('id-ID')}
+                    </span>
+                  </Box>
+                </Group>
+              ))}
+            </Stack>
+          ),
+        }}
+      />
+
+      {error instanceof Error && (
+        <div className="mt-4 p-4 bg-red-100 text-red-700 rounded">
+          {error.message}
+        </div>
+      )}
+    </div>
   );
 }
